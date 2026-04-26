@@ -1,39 +1,18 @@
 const https = require("https");
 
-exports.handler = async function (event, context) {
-  if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-      },
-      body: "",
-    };
-  }
+module.exports = async function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+  if (req.method === "OPTIONS") { res.status(200).end(); return; }
+  if (req.method !== "POST") { res.status(405).send("Method Not Allowed"); return; }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return {
-      statusCode: 500,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ error: "ANTHROPIC_API_KEY not set" }),
-    };
-  }
+  if (!apiKey) { res.status(500).json({ error: "ANTHROPIC_API_KEY not set" }); return; }
 
-  let bodyStr;
-  try {
-    const parsed = JSON.parse(event.body);
-    parsed.stream = false;
-    bodyStr = JSON.stringify(parsed);
-  } catch (e) {
-    return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
-  }
+  const body = { ...req.body, stream: false };
+  const bodyStr = JSON.stringify(body);
 
   return new Promise((resolve) => {
     const options = {
@@ -49,30 +28,21 @@ exports.handler = async function (event, context) {
       },
     };
 
-    const req = https.request(options, (res) => {
+    const request = https.request(options, (response) => {
       let raw = "";
-      res.on("data", (chunk) => { raw += chunk; });
-      res.on("end", () => {
-        resolve({
-          statusCode: res.statusCode,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-          body: raw,
-        });
+      response.on("data", (chunk) => { raw += chunk; });
+      response.on("end", () => {
+        res.status(response.statusCode).send(raw);
+        resolve();
       });
     });
 
-    req.on("error", (err) => {
-      resolve({
-        statusCode: 500,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: err.message }),
-      });
+    request.on("error", (err) => {
+      res.status(500).json({ error: err.message });
+      resolve();
     });
 
-    req.write(bodyStr);
-    req.end();
+    request.write(bodyStr);
+    request.end();
   });
 };
