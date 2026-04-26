@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VendorLens — Healthcare AI Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f5f2eb; --surface: #fffef9; --surface2: #f0ede4; --border: #ddd9ce;
+    --ink: #1a1916; --ink2: #5a574f; --ink3: #9a9790;
+    --accent: #1a5c3a; --accent2: #2d8a5a; --accent-light: #e8f5ee;
+    --warn: #c45c1a; --warn-light: #fdf0e8; --gold: #b8960c; --gold-light: #fdf8e1;
+    --radius: 12px; --radius-sm: 6px;
+    --shadow: 0 2px 8px rgba(26,25,22,0.08), 0 1px 2px rgba(26,25,22,0.04);
+    --shadow-lg: 0 8px 32px rgba(26,25,22,0.12), 0 2px 8px rgba(26,25,22,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+  header { background: var(--ink); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: #fff; letter-spacing: -0.5px; }
+  .logo span { color: #6fcf97; }
+  .header-sub { font-size: 0.75rem; color: #9a9790; font-weight: 300; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .app { display: flex; min-height: calc(100vh - 60px); }
+
+  .sidebar { width: 280px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 1rem; gap: 1.5rem; overflow-y: auto; }
+  .sidebar-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); font-weight: 600; margin-bottom: 0.5rem; }
+
+  .priority-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; border-radius: var(--radius-sm); background: var(--bg); border: 1px solid var(--border); margin-bottom: 0.4rem; }
+  .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--accent); }
+  .priority-text { font-size: 0.78rem; color: var(--ink2); flex: 1; line-height: 1.3; }
+  .p-remove { background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 0.8rem; padding: 0 2px; }
+  .p-remove:hover { color: var(--warn); }
+  .priority-add { display: flex; gap: 0.4rem; }
+  .priority-add input { flex: 1; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.78rem; background: var(--bg); color: var(--ink); outline: none; }
+  .priority-add input:focus { border-color: var(--accent2); }
+  .btn-add { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 0.4rem 0.7rem; font-size: 0.78rem; cursor: pointer; font-weight: 500; }
+  .btn-add:hover { background: var(--accent2); }
+
+  .wl-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; border: 1px solid transparent; }
+  .wl-item:hover { background: var(--accent-light); border-color: var(--border); }
+  .wl-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.65rem; font-weight: 700; flex-shrink: 0; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .wl-info { flex: 1; min-width: 0; }
+  .wl-name { font-size: 0.8rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wl-cat { font-size: 0.68rem; color: var(--ink3); }
+  .wl-remove { background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 0.75rem; padding: 2px 4px; opacity: 0; transition: opacity 0.15s; }
+  .wl-item:hover .wl-remove { opacity: 1; }
+  .wl-remove:hover { color: var(--warn); }
+  .wl-empty { font-size: 0.78rem; color: var(--ink3); text-align: center; padding: 1rem 0.5rem; line-height: 1.5; }
+
+  .main { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .search-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
+  .search-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 0.25rem; }
+  .search-sub { font-size: 0.82rem; color: var(--ink2); margin-bottom: 1rem; }
+  .search-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .search-inputs { display: flex; gap: 0.5rem; flex: 1; min-width: 0; }
+  .search-input { flex: 1; padding: 0.7rem 1rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.9rem; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; }
+  .search-input:focus { border-color: var(--accent2); }
+  .search-input::placeholder { color: var(--ink3); }
+  .btn-analyze { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 0.7rem 1.4rem; font-size: 0.88rem; cursor: pointer; font-weight: 600; font-family: inherit; white-space: nowrap; transition: background 0.15s; }
+  .btn-analyze:hover { background: var(--accent2); }
+  .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; }
+  .chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .chip { font-size: 0.73rem; padding: 0.25rem 0.65rem; border: 1px solid var(--border); border-radius: 20px; background: var(--bg); color: var(--ink2); cursor: pointer; transition: all 0.15s; font-family: 'DM Mono', monospace; }
+  .chip:hover { background: var(--accent-light); border-color: var(--accent2); color: var(--accent); }
+
+  .vendor-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .vc-header { background: var(--ink); padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 90px; }
+  .vc-name { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: #fff; line-height: 1; }
+  .vc-tagline { font-size: 0.8rem; color: #9a9790; margin-top: 0.3rem; }
+  .vc-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  .badge { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.5rem; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .badge-cat { background: rgba(111,207,151,0.2); color: #6fcf97; }
+  .badge-stage { background: rgba(255,255,255,0.1); color: #ccc; }
+  .badge-hipaa { background: rgba(74,144,226,0.25); color: #74b9ff; }
+
+  .fit-ring { width: 64px; height: 64px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid; flex-shrink: 0; }
+  .fit-high { border-color: #6fcf97; }
+  .fit-med { border-color: #f2c94c; }
+  .fit-low { border-color: #eb5757; }
+  .fit-num { font-family: 'DM Mono', monospace; font-size: 1.2rem; font-weight: 500; color: #fff; line-height: 1; }
+  .fit-label { font-size: 0.55rem; color: #9a9790; text-transform: uppercase; letter-spacing: 0.5px; }
+  .fit-caption { font-size: 0.65rem; color: #9a9790; margin-top: 0.3rem; text-align: center; }
+
+  .vc-body { padding: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .vc-sec { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; }
+  .vc-sec.full { grid-column: 1/-1; }
+  .vc-sec-title { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); font-weight: 600; margin-bottom: 0.6rem; }
+  .vc-sec p { font-size: 0.85rem; color: var(--ink2); line-height: 1.6; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tag { font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .tag-g { background: var(--accent-light); color: var(--accent); border: 1px solid #b8dfc9; }
+  .tag-w { background: var(--warn-light); color: var(--warn); border: 1px solid #f5c9aa; }
+  .tag-n { background: var(--surface2); color: var(--ink2); border: 1px solid var(--border); }
+
+  .pr-row { display: flex; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+  .pr-row:last-child { border-bottom: none; }
+  .pr-name { color: var(--ink2); flex: 0 0 auto; max-width: 50%; font-size: 0.8rem; }
+  .pr-bar { flex: 1; margin: 0 0.75rem; height: 4px; background: var(--border); border-radius: 2px; }
+  .pr-fill { height: 100%; border-radius: 2px; }
+  .pr-score { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.8rem; flex-shrink: 0; }
+
+  .vc-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--surface2); flex-wrap: wrap; }
+  .btn-wl { background: var(--accent-light); color: var(--accent); border: 1.5px solid var(--accent2); border-radius: var(--radius-sm); padding: 0.55rem 1rem; font-size: 0.82rem; cursor: pointer; font-weight: 600; font-family: inherit; transition: all 0.15s; }
+  .btn-wl:hover { background: var(--accent); color: #fff; }
+  .btn-wl.saved { background: var(--accent); color: #fff; }
+  .sim-chip { font-size: 0.73rem; padding: 0.25rem 0.6rem; border: 1px solid var(--border); border-radius: 20px; background: var(--bg); color: var(--ink2); cursor: pointer; transition: all 0.15s; font-family: 'DM Mono', monospace; }
+  .sim-chip:hover { background: var(--ink); color: #fff; }
+
+  .loading-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; text-align: center; box-shadow: var(--shadow); }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 0.88rem; color: var(--ink2); }
+  .loading-step { font-size: 0.75rem; color: var(--ink3); margin-top: 0.4rem; font-family: 'DM Mono', monospace; }
+
+  .compare-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; animation: fadeUp 0.3s ease; }
+  .cmp-header { background: var(--ink); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .cmp-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: #fff; }
+  .cmp-table { width: 100%; border-collapse: collapse; }
+  .cmp-table th { background: var(--surface2); padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-align: left; border-bottom: 2px solid var(--border); color: var(--ink2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .cmp-table th:first-child { width: 160px; }
+  .cmp-table td { padding: 0.7rem 1rem; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink2); line-height: 1.5; }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table tr:nth-child(even) td { background: var(--bg); }
+  .row-lbl { font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+
+  .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .dash-header { background: var(--ink); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .dash-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: #fff; }
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; padding: 1.25rem; }
+  .dash-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; cursor: pointer; transition: all 0.15s; position: relative; }
+  .dash-item:hover { border-color: var(--accent2); box-shadow: var(--shadow); }
+  .dash-item-name { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.2rem; }
+  .dash-item-cat { font-size: 0.7rem; color: var(--ink3); font-family: 'DM Mono', monospace; margin-bottom: 0.5rem; }
+  .fit-badge { font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; padding: 0.15rem 0.4rem; border-radius: 4px; display: inline-block; }
+  .fit-badge-h { background: var(--accent-light); color: var(--accent); }
+  .fit-badge-m { background: var(--gold-light); color: var(--gold); }
+  .fit-badge-l { background: var(--warn-light); color: var(--warn); }
+  .dash-remove { position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 0.8rem; opacity: 0; transition: opacity 0.15s; }
+  .dash-item:hover .dash-remove { opacity: 1; }
+  .dash-remove:hover { color: var(--warn); }
+
+  .error-card { background: var(--warn-light); border: 1px solid #f5c9aa; border-radius: var(--radius); padding: 1.25rem 1.5rem; }
+  .error-card p { font-size: 0.85rem; color: var(--warn); }
+
+  .tabs { display: flex; gap: 0.25rem; flex-direction: column; }
+  .tab-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 0.8rem; font-weight: 500; padding: 0.5rem 0.9rem; border-radius: var(--radius-sm); color: var(--ink3); transition: all 0.15s; text-align: left; }
+  .tab-btn.active { background: var(--accent); color: #fff; }
+  .tab-btn:hover:not(.active) { background: var(--surface2); color: var(--ink); }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Vendor<span>Lens</span></div>
+  <div class="header-sub">Healthcare AI Intelligence Platform</div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <div class="sidebar-label">Strategic Priorities</div>
+      <div id="priority-list"></div>
+      <div class="priority-add">
+        <input id="p-input" type="text" placeholder="Add priority…" maxlength="60" />
+        <button class="btn-add" onclick="addPriority()">+</button>
+      </div>
+    </div>
+    <div>
+      <div class="sidebar-label">Vendor Watchlist <span id="wl-count" style="color:var(--accent);font-size:0.7rem;"></span></div>
+      <div id="watchlist"></div>
+    </div>
+    <div style="margin-top:auto;">
+      <div class="sidebar-label">View</div>
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-analyze" onclick="setView('analyze')">🔍 Analyze Vendor</button>
+        <button class="tab-btn" id="tab-dashboard" onclick="setView('dashboard')">📊 My Landscape</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="view-analyze" style="display:flex;flex-direction:column;gap:1.5rem;">
+      <div class="search-card">
+        <div class="search-title">Vendor Intelligence</div>
+        <div class="search-sub">Enter one or two company names to generate a vendor profile scored against your strategic priorities.</div>
+        <div class="search-row">
+          <div class="search-inputs">
+            <input class="search-input" id="vendor1" type="text" placeholder="Company name (e.g. Twin Health)" />
+            <input class="search-input" id="vendor2" type="text" placeholder="Compare with… (optional)" />
+          </div>
+          <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
+        </div>
+        <div class="chips">
+          <span class="chip" onclick="quickSearch('Twin Health')">Twin Health</span>
+          <span class="chip" onclick="quickSearch('Pomelo Health')">Pomelo Health</span>
+          <span class="chip" onclick="quickSearch('Interactly')">Interactly</span>
+          <span class="chip" onclick="quickSearch('Counsel Health')">Counsel Health</span>
+          <span class="chip" onclick="quickSearch('Parallel AI')">Parallel AI</span>
+          <span class="chip" onclick="quickSearch('Abridge')">Abridge</span>
+          <span class="chip" onclick="quickSearch('Nabla')">Nabla</span>
+        </div>
+      </div>
+      <div id="results-area"></div>
+    </div>
+    <div id="view-dashboard" style="display:none;">
+      <div class="dash-card">
+        <div class="dash-header">
+          <div class="dash-title">My AI Vendor Landscape</div>
+          <div style="font-size:0.75rem;color:#9a9790;" id="dash-count"></div>
+        </div>
+        <div class="dash-grid" id="dash-grid"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── State ──
+let priorities = [
+  "Reduce prior authorization turnaround time",
+  "Improve member engagement & retention",
+  "Automate clinical documentation",
+  "Support chronic care management programs"
+];
+let watchlist = [];
+let currentVendors = [];
+let lastVendorData = null;
+
+// ── Priorities ──
+function renderPriorities() {
+  const el = document.getElementById('priority-list');
+  el.innerHTML = priorities.length
+    ? priorities.map((p,i) => `<div class="priority-item"><div class="priority-dot"></div><div class="priority-text">${p}</div><button class="p-remove" onclick="removePriority(${i})">✕</button></div>`).join('')
+    : '<div style="font-size:0.75rem;color:var(--ink3);margin-bottom:0.5rem;">No priorities set</div>';
+}
+function addPriority() {
+  const inp = document.getElementById('p-input'), v = inp.value.trim();
+  if (!v) return; priorities.push(v); inp.value = ''; renderPriorities();
+}
+function removePriority(i) { priorities.splice(i,1); renderPriorities(); }
+document.getElementById('p-input').addEventListener('keydown', e => { if (e.key==='Enter') addPriority(); });
+
+// ── Watchlist ──
+function renderWatchlist() {
+  document.getElementById('wl-count').textContent = watchlist.length ? `(${watchlist.length})` : '';
+  const el = document.getElementById('watchlist');
+  el.innerHTML = watchlist.length
+    ? watchlist.map((v,i) => `<div class="wl-item" onclick="loadWL(${i})"><div class="wl-icon">${v.name.slice(0,2)}</div><div class="wl-info"><div class="wl-name">${v.name}</div><div class="wl-cat">${v.category||'Healthcare AI'}</div></div><button class="wl-remove" onclick="event.stopPropagation();removeWL(${i})">✕</button></div>`).join('')
+    : '<div class="wl-empty">No vendors saved yet.<br>Analyze a company and add it to your watchlist.</div>';
+}
+function addToWatchlist(d) {
+  const idx = watchlist.findIndex(v => v.name.toLowerCase()===d.name.toLowerCase());
+  if (idx>=0) watchlist.splice(idx,1);
+  watchlist.unshift({name:d.name, category:d.category, fitScore:d.fitScore, data:d});
+  renderWatchlist(); renderDashboard();
+}
+function removeWL(i) { watchlist.splice(i,1); renderWatchlist(); renderDashboard(); }
+function loadWL(i) { setView('analyze'); renderVendorCard(watchlist[i].data); }
+function toggleWatchlist() {
+  if (!lastVendorData) return;
+  const idx = watchlist.findIndex(v => v.name.toLowerCase()===lastVendorData.name.toLowerCase());
+  if (idx>=0) { watchlist.splice(idx,1); renderWatchlist(); renderDashboard(); }
+  else addToWatchlist(lastVendorData);
+  updateWLBtn();
+}
+function updateWLBtn() {
+  const btn = document.getElementById('wl-main-btn'); if (!btn||!lastVendorData) return;
+  const saved = watchlist.some(v => v.name.toLowerCase()===lastVendorData.name.toLowerCase());
+  btn.textContent = saved ? '✓ Saved to Watchlist' : '+ Add to Watchlist';
+  btn.className = 'btn-wl' + (saved?' saved':'');
+}
+
+// ── View ──
+function setView(v) {
+  document.getElementById('view-analyze').style.display = v==='analyze' ? 'flex' : 'none';
+  document.getElementById('view-dashboard').style.display = v==='dashboard' ? 'block' : 'none';
+  document.getElementById('tab-analyze').classList.toggle('active', v==='analyze');
+  document.getElementById('tab-dashboard').classList.toggle('active', v==='dashboard');
+  if (v==='dashboard') renderDashboard();
+}
+
+// ── Dashboard ──
+function renderDashboard() {
+  const grid = document.getElementById('dash-grid');
+  document.getElementById('dash-count').textContent = `${watchlist.length} vendor${watchlist.length!==1?'s':''} tracked`;
+  grid.innerHTML = watchlist.length
+    ? watchlist.map((v,i) => {
+        const fc = v.fitScore>=7?'fit-badge-h':v.fitScore>=5?'fit-badge-m':'fit-badge-l';
+        return `<div class="dash-item" onclick="loadWL(${i})"><button class="dash-remove" onclick="event.stopPropagation();removeWL(${i})">✕</button><div class="dash-item-name">${v.name}</div><div class="dash-item-cat">${v.category||'Healthcare AI'}</div><div class="fit-badge ${fc}">Fit ${v.fitScore}/10</div></div>`;
+      }).join('')
+    : '<div style="padding:2rem;font-size:0.85rem;color:var(--ink3);grid-column:1/-1;text-align:center;">No vendors yet. Analyze and save vendors to build your portfolio.</div>';
+}
+
+function quickSearch(name) { document.getElementById('vendor1').value=name; document.getElementById('vendor2').value=''; runAnalysis(); }
+
+// ── API call via proxy ──
+async function callProxy(payload) {
+  const resp = await fetch('/.netlify/functions/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!resp.ok) throw new Error(`Request failed (${resp.status})`);
+  return resp.json();
+}
+
+function buildPayload(vendorName) {
+  const pList = priorities.length
+    ? priorities.map((p,i) => `${i+1}. ${p}`).join('\n')
+    : '1. Reduce costs\n2. Improve member outcomes';
+
+  return {
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 1000,
+    system: "You are a healthcare AI vendor intelligence analyst for a payer organization. You have deep knowledge of healthcare AI companies. Respond ONLY with a valid raw JSON object. No markdown, no backticks, no preamble.",
+    messages: [{
+      role: "user",
+      content: `Analyze healthcare AI vendor "${vendorName}" for a health insurance payer evaluating AI vendors.
+
+Our strategic priorities:
+${pList}
+
+Return ONLY this JSON (raw, no markdown, no backticks):
+{"name":"Official company name","tagline":"One sentence what they do","category":"e.g. Chronic Care Management","targetCustomer":"Payers / Providers / Patients / Employers","stage":"e.g. Series B / Enterprise","hipaaCompliant":true,"hl7Fhir":true,"coreUseCase":"2-3 sentences on core product","differentiator":"2-3 sentences on what makes them unique","strengths":["strength 1","strength 2","strength 3"],"concerns":["concern 1","concern 2"],"integrationsLikely":["Epic","Salesforce Health Cloud"],"priorityScores":[{"priority":"Short label max 40 chars","score":8,"rationale":"brief reason"}],"fitScore":7,"fitRationale":"2 sentence summary of fit for a healthcare payer","similarVendors":["Competitor A","Competitor B"],"fundingNotes":"Brief funding note","payerCustomers":"Known payer customers or Not publicly disclosed"}`
+    }]
+  };
+}
+
+// ── Main analysis ──
+async function runAnalysis() {
+  const v1 = document.getElementById('vendor1').value.trim();
+  const v2 = document.getElementById('vendor2').value.trim();
+  if (!v1) { document.getElementById('vendor1').focus(); return; }
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true; btn.textContent = 'Analyzing…';
+  const area = document.getElementById('results-area');
+
+  // Loading spinner
+  area.innerHTML = `
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-text">Analyzing ${v1}${v2 ? ' & ' + v2 : ''}…</div>
+      <div class="loading-step" id="loading-step">Generating vendor intelligence…</div>
+    </div>`;
+
+  const steps = ['Generating vendor intelligence…','Scoring against your priorities…','Building vendor card…'];
+  let si = 0;
+  const ticker = setInterval(() => {
+    si = (si+1) % steps.length;
+    const el = document.getElementById('loading-step');
+    if (el) el.textContent = steps[si];
+  }, 2000);
+
+  try {
+    if (v2) {
+      const [d1, d2] = await Promise.all([
+        callProxy(buildPayload(v1)).then(parseVendor),
+        callProxy(buildPayload(v2)).then(parseVendor)
+      ]);
+      clearInterval(ticker);
+      currentVendors = [d1, d2];
+      renderCompare(d1, d2);
+    } else {
+      const data = await callProxy(buildPayload(v1));
+      clearInterval(ticker);
+      const d = parseVendor(data);
+      renderVendorCard(d);
+    }
+  } catch(e) {
+    clearInterval(ticker);
+    area.innerHTML = `<div class="error-card"><p>⚠️ ${e.message||'Something went wrong. Please try again.'}</p></div>`;
+  }
+
+  btn.disabled = false; btn.textContent = 'Analyze →';
+}
+
+function parseVendor(data) {
+  const text = (data.content || []).filter(b => b.type==='text').map(b => b.text).join('');
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('Could not parse vendor data. Please try again.');
+  return JSON.parse(match[0]);
+}
+
+// ── Render vendor card ──
+function renderVendorCard(d) {
+  lastVendorData = d;
+  const saved = watchlist.some(v => v.name.toLowerCase()===d.name.toLowerCase());
+  const fitClass = d.fitScore>=7?'fit-high':d.fitScore>=5?'fit-med':'fit-low';
+
+  const pRows = (d.priorityScores||[]).map(p => {
+    const color = p.score>=7?'var(--accent)':p.score>=5?'var(--gold)':'var(--warn)';
+    return `<div class="pr-row"><div class="pr-name">${p.priority}</div><div class="pr-bar"><div class="pr-fill" style="width:${p.score*10}%;background:${color};"></div></div><div class="pr-score" style="color:${color};">${p.score}/10</div></div>`;
+  }).join('');
+
+  const strengths = (d.strengths||[]).map(s=>`<span class="tag tag-g">${s}</span>`).join('');
+  const concerns  = (d.concerns||[]).map(c=>`<span class="tag tag-w">${c}</span>`).join('');
+  const integrations = (d.integrationsLikely||[]).map(i=>`<span class="tag tag-n">${i}</span>`).join('');
+  const similar = (d.similarVendors||[]).map(s=>`<span class="sim-chip" onclick="quickSearch('${s}')">${s}</span>`).join('');
+
+  document.getElementById('results-area').innerHTML = `
+    <div class="vendor-card">
+      <div class="vc-header">
+        <div style="flex:1;">
+          <div class="vc-name">${d.name}</div>
+          <div class="vc-tagline">${d.tagline||''}</div>
+          <div class="vc-badges">
+            <span class="badge badge-cat">${d.category||''}</span>
+            <span class="badge badge-stage">${d.stage||''}</span>
+            ${d.hipaaCompliant?'<span class="badge badge-hipaa">HIPAA ✓</span>':''}
+            ${d.hl7Fhir?'<span class="badge badge-hipaa">HL7/FHIR ✓</span>':''}
+          </div>
+        </div>
+        <div style="text-align:center;flex-shrink:0;">
+          <div class="fit-ring ${fitClass}"><div class="fit-num">${d.fitScore}</div><div class="fit-label">/ 10</div></div>
+          <div class="fit-caption">Fit Score</div>
+        </div>
+      </div>
+      <div class="vc-body">
+        <div class="vc-sec full"><div class="vc-sec-title">🎯 Core Use Case</div><p>${d.coreUseCase||''}</p></div>
+        <div class="vc-sec full"><div class="vc-sec-title">⚡ Key Differentiator</div><p>${d.differentiator||''}</p></div>
+        <div class="vc-sec"><div class="vc-sec-title">✅ Strengths</div><div class="tag-list">${strengths}</div></div>
+        <div class="vc-sec"><div class="vc-sec-title">⚠️ Watch Points</div><div class="tag-list">${concerns}</div></div>
+        <div class="vc-sec"><div class="vc-sec-title">🔌 Likely Integrations</div><div class="tag-list">${integrations}</div></div>
+        <div class="vc-sec"><div class="vc-sec-title">🏥 Known Payer Customers</div><p>${d.payerCustomers||'Not publicly disclosed'}</p></div>
+        <div class="vc-sec"><div class="vc-sec-title">👥 Target Customer</div><p>${d.targetCustomer||''}</p></div>
+        <div class="vc-sec"><div class="vc-sec-title">💰 Funding & Scale</div><p>${d.fundingNotes||'Not disclosed'}</p></div>
+        ${pRows?`<div class="vc-sec full"><div class="vc-sec-title">📊 Strategic Priority Alignment</div>${pRows}</div>`:''}
+        <div class="vc-sec full"><div class="vc-sec-title">🏁 Payer Fit Summary</div><p>${d.fitRationale||''}</p></div>
+      </div>
+      <div class="vc-footer">
+        <button class="btn-wl ${saved?'saved':''}" id="wl-main-btn" onclick="toggleWatchlist()">${saved?'✓ Saved to Watchlist':'+ Add to Watchlist'}</button>
+        ${similar?`<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;"><span style="font-size:0.72rem;color:var(--ink3);">Compare with:</span>${similar}</div>`:''}
+      </div>
+    </div>`;
+}
+
+// ── Compare ──
+function renderCompare(d1, d2) {
+  const rows = [
+    {l:'Category',f:d=>d.category},{l:'Stage',f:d=>d.stage},
+    {l:'Target Customer',f:d=>d.targetCustomer},{l:'Core Use Case',f:d=>d.coreUseCase},
+    {l:'Differentiator',f:d=>d.differentiator},{l:'Strengths',f:d=>(d.strengths||[]).join(', ')},
+    {l:'Watch Points',f:d=>(d.concerns||[]).join(', ')},{l:'Integrations',f:d=>(d.integrationsLikely||[]).join(', ')},
+    {l:'HIPAA / FHIR',f:d=>`${d.hipaaCompliant?'HIPAA ✓':'HIPAA ?'} / ${d.hl7Fhir?'HL7/FHIR ✓':'HL7/FHIR ?'}`},
+    {l:'Payer Customers',f:d=>d.payerCustomers},{l:'Funding',f:d=>d.fundingNotes},
+    {l:'Fit Score',f:d=>`${d.fitScore}/10`},{l:'Payer Fit',f:d=>d.fitRationale},
+  ];
+  document.getElementById('results-area').innerHTML = `
+    <div class="compare-card">
+      <div class="cmp-header">
+        <div class="cmp-title">${d1.name} vs ${d2.name}</div>
+        <button class="btn-wl" style="font-size:0.75rem;padding:0.4rem 0.8rem;" onclick="addToWatchlist(currentVendors[0]);addToWatchlist(currentVendors[1]);">+ Save Both</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="cmp-table">
+          <thead><tr><th>Dimension</th><th>${d1.name} <span style="font-family:'DM Mono',monospace;font-weight:400;">(${d1.fitScore}/10)</span></th><th>${d2.name} <span style="font-family:'DM Mono',monospace;font-weight:400;">(${d2.fitScore}/10)</span></th></tr></thead>
+          <tbody>${rows.map(r=>`<tr><td class="row-lbl">${r.l}</td><td>${r.f(d1)||'—'}</td><td>${r.f(d2)||'—'}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// Init
+renderPriorities();
+renderWatchlist();
+</script>
+</body>
+</html>
