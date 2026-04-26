@@ -300,12 +300,26 @@ function quickSearch(name) { document.getElementById('vendor1').value=name; docu
 
 // ── API call via proxy ──
 async function callProxy(payload) {
-  const resp = await fetch('/api/claude', {
+  let apiKey = sessionStorage.getItem('vl_key');
+  if (!apiKey) {
+    apiKey = prompt('Enter your Anthropic API key to use VendorLens:\n(It will be remembered for this session only)');
+    if (!apiKey) throw new Error('API key required');
+    sessionStorage.setItem('vl_key', apiKey);
+  }
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
     body: JSON.stringify(payload)
   });
-  if (!resp.ok) throw new Error(`Request failed (${resp.status})`);
+  if (!resp.ok) {
+    if (resp.status === 401) { sessionStorage.removeItem('vl_key'); }
+    throw new Error(`Request failed (${resp.status})`);
+  }
   return resp.json();
 }
 
