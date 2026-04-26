@@ -300,7 +300,7 @@ function quickSearch(name) { document.getElementById('vendor1').value=name; docu
 
 // ── API call via proxy ──
 async function callProxy(payload) {
-  const resp = await fetch('/.netlify/functions/claude', {
+  const resp = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
