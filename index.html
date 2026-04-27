@@ -54,9 +54,6 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
 .mode-tab.active{background:var(--accent-dim);border-color:var(--accent-glow);color:var(--accent);}
 .mode-tab:hover:not(.active){background:var(--surface3);color:var(--ink);}
 .sinput{width:100%;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;transition:border-color 0.15s;}
-.vce:focus{border-color:var(--accent2);}
-.vce:empty:before{content:attr(data-ph);color:var(--ink3);pointer-events:none;}
-.vce{white-space:nowrap;overflow:hidden;line-height:1.4;}
 .sinput:focus{border-color:var(--accent2);}.sinput::placeholder{color:var(--ink3);}
 .inputs-row{display:flex;gap:0.5rem;}
 .btn-analyze{background:var(--accent);color:#0e0f0d;border:none;border-radius:var(--r-sm);padding:0.68rem 1.35rem;font-size:0.87rem;cursor:pointer;font-weight:700;font-family:inherit;white-space:nowrap;transition:all 0.15s;}
@@ -273,27 +270,27 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
           <button type="button" class="mode-tab" id="mode-bulk" onclick="setMode('bulk')">Bulk Analyze</button>
         </div>
         <div id="panel-single">
-          <div style="display:flex;flex-direction:column;gap:0.45rem;">
-            <div class="inputs-row">
-              <div class="sinput vce" id="vf1" contenteditable="true" spellcheck="false" data-ph="Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter'){event.preventDefault();runAnalysis();}" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            <div style="display:flex;gap:0.5rem;">
+              <textarea id="vf1" rows="1" placeholder="Vendor 1 — Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter'){event.preventDefault();runAnalysis();}" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
               <button type="button" class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
             </div>
-            <div id="vrow2" style="display:none;margin-top:0.45rem;">
-              <div style="display:flex;gap:0.5rem;align-items:center;">
-                <div class="sinput vce" id="vf2" contenteditable="true" spellcheck="false" data-ph="Vendor 2 name…" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
-                <button type="button" onclick="hideVRow(2)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;">✕</button>
+            <div id="vrow2" style="display:none;">
+              <div style="display:flex;gap:0.5rem;">
+                <textarea id="vf2" rows="1" placeholder="Vendor 2 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                <button type="button" onclick="hideVRow(2)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;align-self:center;">✕</button>
               </div>
             </div>
-            <div id="vrow3" style="display:none;margin-top:0.45rem;">
-              <div style="display:flex;gap:0.5rem;align-items:center;">
-                <div class="sinput vce" id="vf3" contenteditable="true" spellcheck="false" data-ph="Vendor 3 name…" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
-                <button type="button" onclick="hideVRow(3)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;">✕</button>
+            <div id="vrow3" style="display:none;">
+              <div style="display:flex;gap:0.5rem;">
+                <textarea id="vf3" rows="1" placeholder="Vendor 3 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                <button type="button" onclick="hideVRow(3)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;align-self:center;">✕</button>
               </div>
             </div>
-            <div id="vrow4" style="display:none;margin-top:0.45rem;">
-              <div style="display:flex;gap:0.5rem;align-items:center;">
-                <div class="sinput vce" id="vf4" contenteditable="true" spellcheck="false" data-ph="Vendor 4 name…" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
-                <button type="button" onclick="hideVRow(4)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;">✕</button>
+            <div id="vrow4" style="display:none;">
+              <div style="display:flex;gap:0.5rem;">
+                <textarea id="vf4" rows="1" placeholder="Vendor 4 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                <button type="button" onclick="hideVRow(4)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;align-self:center;">✕</button>
               </div>
             </div>
             <div class="add-vendor-row">
@@ -301,8 +298,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
               <span class="vc-count" id="vc-lbl"></span>
             </div>
           </div>
-        </div>
-        <div class="chips">
+        </div>        <div class="chips">
           <span style="font-size:0.63rem;color:var(--ink3);font-family:'DM Mono',monospace;align-self:center;">Quick:</span>
           <span class="chip" onclick="fillVendor1('Twin Health')">Twin Health</span>
           <span class="chip" onclick="fillVendor1('Pomelo Health')">Pomelo Health</span>
@@ -487,13 +483,17 @@ function setMode(m){
 
 // Static pre-rendered vendor rows — show/hide only, no dynamic creation
 function showNextVRow(){
+  document.getElementById('vf1').blur();
   for(let i=2;i<=4;i++){
     const row=document.getElementById('vrow'+i);
     if(row&&row.style.display==='none'){
       row.style.display='block';
-      document.getElementById('vf'+i).textContent='';
+      const field=document.getElementById('vf'+i);
+      field.textContent='';
       updateVCLabel();
       if(i===4)document.getElementById('add-vendor-btn').style.display='none';
+      // Explicitly focus the new field so typing goes there, not vf1
+      setTimeout(()=>{field.focus();},50);
       return;
     }
   }
@@ -501,7 +501,7 @@ function showNextVRow(){
 }
 function hideVRow(n){
   const row=document.getElementById('vrow'+n);
-  if(row){row.style.display='none';document.getElementById('vf'+n).textContent='';}
+  if(row){row.style.display='none';document.getElementById('vf'+n).value='';}
   document.getElementById('add-vendor-btn').style.display='';
   updateVCLabel();
 }
@@ -511,12 +511,10 @@ function updateVCLabel(){
   document.getElementById('vc-lbl').textContent=visible>1?visible+' vendors':'';
 }
 function fillVendor1(name){
-  const el=document.getElementById('vf1');el.textContent=name;
-  // move cursor to end
-  const range=document.createRange();const sel=window.getSelection();range.selectNodeContents(el);range.collapse(false);sel.removeAllRanges();sel.addRange(range);el.focus();
+  const el=document.getElementById('vf1');el.value=name;el.focus();
 }
 function qs(name){
-  document.getElementById('vf1').textContent=name;
+  document.getElementById('vf1').value=name;
   for(let i=2;i<=4;i++)hideVRow(i);
   document.getElementById('add-vendor-btn').style.display='';
   updateVCLabel();setMode('single');runAnalysis();
@@ -528,12 +526,12 @@ function shareVendor(d){const url=`${location.origin}${location.pathname}?v=${en
 function showLoading(names){const steps=['Generating vendor intelligence…','Scoring against your priorities…','Detecting red flags & maturity…','Building vendor card…'];let si=0;document.getElementById('results-area').innerHTML=`<div class="loading-card"><div class="spinner"></div><div class="loading-text">Analyzing ${names}…</div><div class="loading-step" id="lstep">${steps[0]}</div></div>`;const t=setInterval(()=>{si=(si+1)%steps.length;const el=document.getElementById('lstep');if(el)el.textContent=steps[si];else clearInterval(t);},2000);}
 
 async function runAnalysis(){
-  const v1=document.getElementById('vf1').textContent.trim();if(!v1){document.getElementById('vf1').focus();return;}
+  const v1=document.getElementById('vf1').value.trim();if(!v1){document.getElementById('vf1').focus();return;}
   const vendors=[v1];
   for(let i=2;i<=4;i++){
     const row=document.getElementById('vrow'+i);
     const el=document.getElementById('vf'+i);
-    if(row&&row.style.display!=='none'&&el&&el.textContent.trim())vendors.push(el.textContent.trim());
+    if(row&&row.style.display!=='none'&&el&&el.value.trim())vendors.push(el.value.trim());
   }
   const btn=document.getElementById('analyze-btn');btn.disabled=true;btn.textContent='Analyzing…';
   showLoading(vendors.join(', '));
