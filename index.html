@@ -1,488 +1,507 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>VendorLens — Healthcare AI Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #f5f2eb; --surface: #fffef9; --surface2: #f0ede4; --border: #ddd9ce;
-    --ink: #1a1916; --ink2: #5a574f; --ink3: #9a9790;
-    --accent: #1a5c3a; --accent2: #2d8a5a; --accent-light: #e8f5ee;
-    --warn: #c45c1a; --warn-light: #fdf0e8; --gold: #b8960c; --gold-light: #fdf8e1;
-    --radius: 12px; --radius-sm: 6px;
-    --shadow: 0 2px 8px rgba(26,25,22,0.08), 0 1px 2px rgba(26,25,22,0.04);
-    --shadow-lg: 0 8px 32px rgba(26,25,22,0.12), 0 2px 8px rgba(26,25,22,0.06);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
-
-  header { background: var(--ink); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
-  .logo { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: #fff; letter-spacing: -0.5px; }
-  .logo span { color: #6fcf97; }
-  .header-sub { font-size: 0.75rem; color: #9a9790; font-weight: 300; letter-spacing: 0.5px; text-transform: uppercase; }
-
-  .app { display: flex; min-height: calc(100vh - 60px); }
-
-  .sidebar { width: 280px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 1rem; gap: 1.5rem; overflow-y: auto; }
-  .sidebar-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); font-weight: 600; margin-bottom: 0.5rem; }
-
-  .priority-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; border-radius: var(--radius-sm); background: var(--bg); border: 1px solid var(--border); margin-bottom: 0.4rem; }
-  .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--accent); }
-  .priority-text { font-size: 0.78rem; color: var(--ink2); flex: 1; line-height: 1.3; }
-  .p-remove { background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 0.8rem; padding: 0 2px; }
-  .p-remove:hover { color: var(--warn); }
-  .priority-add { display: flex; gap: 0.4rem; }
-  .priority-add input { flex: 1; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.78rem; background: var(--bg); color: var(--ink); outline: none; }
-  .priority-add input:focus { border-color: var(--accent2); }
-  .btn-add { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 0.4rem 0.7rem; font-size: 0.78rem; cursor: pointer; font-weight: 500; }
-  .btn-add:hover { background: var(--accent2); }
-
-  .wl-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; border: 1px solid transparent; }
-  .wl-item:hover { background: var(--accent-light); border-color: var(--border); }
-  .wl-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.65rem; font-weight: 700; flex-shrink: 0; text-transform: uppercase; font-family: 'DM Mono', monospace; }
-  .wl-info { flex: 1; min-width: 0; }
-  .wl-name { font-size: 0.8rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .wl-cat { font-size: 0.68rem; color: var(--ink3); }
-  .wl-remove { background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 0.75rem; padding: 2px 4px; opacity: 0; transition: opacity 0.15s; }
-  .wl-item:hover .wl-remove { opacity: 1; }
-  .wl-remove:hover { color: var(--warn); }
-  .wl-empty { font-size: 0.78rem; color: var(--ink3); text-align: center; padding: 1rem 0.5rem; line-height: 1.5; }
-
-  .main { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
-
-  .search-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
-  .search-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 0.25rem; }
-  .search-sub { font-size: 0.82rem; color: var(--ink2); margin-bottom: 1rem; }
-  .search-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-  .search-inputs { display: flex; gap: 0.5rem; flex: 1; min-width: 0; }
-  .search-input { flex: 1; padding: 0.7rem 1rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.9rem; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; }
-  .search-input:focus { border-color: var(--accent2); }
-  .search-input::placeholder { color: var(--ink3); }
-  .btn-analyze { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 0.7rem 1.4rem; font-size: 0.88rem; cursor: pointer; font-weight: 600; font-family: inherit; white-space: nowrap; transition: background 0.15s; }
-  .btn-analyze:hover { background: var(--accent2); }
-  .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; }
-  .chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
-  .chip { font-size: 0.73rem; padding: 0.25rem 0.65rem; border: 1px solid var(--border); border-radius: 20px; background: var(--bg); color: var(--ink2); cursor: pointer; transition: all 0.15s; font-family: 'DM Mono', monospace; }
-  .chip:hover { background: var(--accent-light); border-color: var(--accent2); color: var(--accent); }
-
-  .vendor-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; animation: fadeUp 0.3s ease; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  .vc-header { background: var(--ink); padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 90px; }
-  .vc-name { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: #fff; line-height: 1; }
-  .vc-tagline { font-size: 0.8rem; color: #9a9790; margin-top: 0.3rem; }
-  .vc-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
-  .badge { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.5rem; border-radius: 4px; font-family: 'DM Mono', monospace; }
-  .badge-cat { background: rgba(111,207,151,0.2); color: #6fcf97; }
-  .badge-stage { background: rgba(255,255,255,0.1); color: #ccc; }
-  .badge-hipaa { background: rgba(74,144,226,0.25); color: #74b9ff; }
-
-  .fit-ring { width: 64px; height: 64px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid; flex-shrink: 0; }
-  .fit-high { border-color: #6fcf97; }
-  .fit-med { border-color: #f2c94c; }
-  .fit-low { border-color: #eb5757; }
-  .fit-num { font-family: 'DM Mono', monospace; font-size: 1.2rem; font-weight: 500; color: #fff; line-height: 1; }
-  .fit-label { font-size: 0.55rem; color: #9a9790; text-transform: uppercase; letter-spacing: 0.5px; }
-  .fit-caption { font-size: 0.65rem; color: #9a9790; margin-top: 0.3rem; text-align: center; }
-
-  .vc-body { padding: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .vc-sec { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; }
-  .vc-sec.full { grid-column: 1/-1; }
-  .vc-sec-title { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); font-weight: 600; margin-bottom: 0.6rem; }
-  .vc-sec p { font-size: 0.85rem; color: var(--ink2); line-height: 1.6; }
-  .tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .tag { font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 4px; font-family: 'DM Mono', monospace; }
-  .tag-g { background: var(--accent-light); color: var(--accent); border: 1px solid #b8dfc9; }
-  .tag-w { background: var(--warn-light); color: var(--warn); border: 1px solid #f5c9aa; }
-  .tag-n { background: var(--surface2); color: var(--ink2); border: 1px solid var(--border); }
-
-  .pr-row { display: flex; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
-  .pr-row:last-child { border-bottom: none; }
-  .pr-name { color: var(--ink2); flex: 0 0 auto; max-width: 50%; font-size: 0.8rem; }
-  .pr-bar { flex: 1; margin: 0 0.75rem; height: 4px; background: var(--border); border-radius: 2px; }
-  .pr-fill { height: 100%; border-radius: 2px; }
-  .pr-score { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.8rem; flex-shrink: 0; }
-
-  .vc-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--surface2); flex-wrap: wrap; }
-  .btn-wl { background: var(--accent-light); color: var(--accent); border: 1.5px solid var(--accent2); border-radius: var(--radius-sm); padding: 0.55rem 1rem; font-size: 0.82rem; cursor: pointer; font-weight: 600; font-family: inherit; transition: all 0.15s; }
-  .btn-wl:hover { background: var(--accent); color: #fff; }
-  .btn-wl.saved { background: var(--accent); color: #fff; }
-  .sim-chip { font-size: 0.73rem; padding: 0.25rem 0.6rem; border: 1px solid var(--border); border-radius: 20px; background: var(--bg); color: var(--ink2); cursor: pointer; transition: all 0.15s; font-family: 'DM Mono', monospace; }
-  .sim-chip:hover { background: var(--ink); color: #fff; }
-
-  .loading-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; text-align: center; box-shadow: var(--shadow); }
-  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 0.88rem; color: var(--ink2); }
-  .loading-step { font-size: 0.75rem; color: var(--ink3); margin-top: 0.4rem; font-family: 'DM Mono', monospace; }
-
-  .compare-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; animation: fadeUp 0.3s ease; }
-  .cmp-header { background: var(--ink); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
-  .cmp-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: #fff; }
-  .cmp-table { width: 100%; border-collapse: collapse; }
-  .cmp-table th { background: var(--surface2); padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-align: left; border-bottom: 2px solid var(--border); color: var(--ink2); text-transform: uppercase; letter-spacing: 0.5px; }
-  .cmp-table th:first-child { width: 160px; }
-  .cmp-table td { padding: 0.7rem 1rem; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink2); line-height: 1.5; }
-  .cmp-table tr:last-child td { border-bottom: none; }
-  .cmp-table tr:nth-child(even) td { background: var(--bg); }
-  .row-lbl { font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink3); font-family: 'DM Mono', monospace; }
-
-  .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-  .dash-header { background: var(--ink); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
-  .dash-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: #fff; }
-  .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; padding: 1.25rem; }
-  .dash-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; cursor: pointer; transition: all 0.15s; position: relative; }
-  .dash-item:hover { border-color: var(--accent2); box-shadow: var(--shadow); }
-  .dash-item-name { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.2rem; }
-  .dash-item-cat { font-size: 0.7rem; color: var(--ink3); font-family: 'DM Mono', monospace; margin-bottom: 0.5rem; }
-  .fit-badge { font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; padding: 0.15rem 0.4rem; border-radius: 4px; display: inline-block; }
-  .fit-badge-h { background: var(--accent-light); color: var(--accent); }
-  .fit-badge-m { background: var(--gold-light); color: var(--gold); }
-  .fit-badge-l { background: var(--warn-light); color: var(--warn); }
-  .dash-remove { position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 0.8rem; opacity: 0; transition: opacity 0.15s; }
-  .dash-item:hover .dash-remove { opacity: 1; }
-  .dash-remove:hover { color: var(--warn); }
-
-  .error-card { background: var(--warn-light); border: 1px solid #f5c9aa; border-radius: var(--radius); padding: 1.25rem 1.5rem; }
-  .error-card p { font-size: 0.85rem; color: var(--warn); }
-
-  .tabs { display: flex; gap: 0.25rem; flex-direction: column; }
-  .tab-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 0.8rem; font-weight: 500; padding: 0.5rem 0.9rem; border-radius: var(--radius-sm); color: var(--ink3); transition: all 0.15s; text-align: left; }
-  .tab-btn.active { background: var(--accent); color: #fff; }
-  .tab-btn:hover:not(.active) { background: var(--surface2); color: var(--ink); }
+:root{--bg:#0e0f0d;--surface:#161714;--surface2:#1e1f1c;--surface3:#252621;--border:#2a2b27;--border2:#333430;--ink:#f0ede6;--ink2:#a8a49c;--ink3:#5a574f;--accent:#4ade80;--accent2:#22c55e;--accent-dim:rgba(74,222,128,0.12);--accent-glow:rgba(74,222,128,0.25);--warn:#fb923c;--warn-dim:rgba(251,146,60,0.12);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.12);--red:#f87171;--red-dim:rgba(248,113,113,0.12);--blue:#60a5fa;--blue-dim:rgba(96,165,250,0.12);--r:10px;--r-sm:6px;--shadow:0 2px 12px rgba(0,0,0,0.4);--shadow-lg:0 8px 40px rgba(0,0,0,0.6);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--ink);letter-spacing:-1px;}
+.logo em{color:var(--accent);font-style:normal;}
+.header-right{display:flex;align-items:center;gap:1rem;}
+.header-badge{font-size:0.63rem;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;padding:0.2rem 0.6rem;border:1px solid var(--border2);border-radius:20px;color:var(--ink3);}
+.header-url{font-size:0.68rem;font-family:'DM Mono',monospace;color:var(--accent2);opacity:0.7;}
+.app{display:flex;min-height:calc(100vh - 56px);}
+.sidebar{width:258px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.25rem 0.875rem;gap:1.25rem;overflow-y:auto;}
+.sec-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink3);font-weight:600;margin-bottom:0.5rem;font-family:'DM Mono',monospace;}
+.priority-pill{display:flex;align-items:center;gap:0.5rem;padding:0.38rem 0.5rem;border-radius:var(--r-sm);background:var(--surface2);border:1px solid var(--border);margin-bottom:0.3rem;}
+.priority-pill:hover .p-rm{opacity:1;}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.ptext{font-size:0.74rem;color:var(--ink2);flex:1;line-height:1.3;}
+.p-rm{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:0.72rem;opacity:0;transition:opacity 0.15s;}.p-rm:hover{color:var(--red);}
+.p-add{display:flex;gap:0.4rem;margin-top:0.3rem;}
+.p-add input{flex:1;padding:0.33rem 0.55rem;border:1px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.74rem;background:var(--surface2);color:var(--ink);outline:none;}
+.p-add input:focus{border-color:var(--accent2);}.p-add input::placeholder{color:var(--ink3);}
+.btn-sm{background:var(--accent);color:#0e0f0d;border:none;border-radius:var(--r-sm);padding:0.33rem 0.6rem;font-size:0.74rem;cursor:pointer;font-weight:600;}
+.btn-sm:hover{background:var(--accent2);}
+.wl-item{display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.4rem;border-radius:var(--r-sm);cursor:pointer;transition:background 0.15s;border:1px solid transparent;}
+.wl-item:hover{background:var(--surface2);border-color:var(--border);}
+.wl-item:hover .wl-rm{opacity:1;}
+.wl-icon{width:27px;height:27px;background:var(--accent-dim);border:1px solid var(--accent-glow);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:0.62rem;font-weight:700;flex-shrink:0;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.wl-info{flex:1;min-width:0;}.wl-name{font-size:0.77rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.wl-cat{font-size:0.63rem;color:var(--ink3);}
+.wl-rm{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:0.68rem;opacity:0;transition:opacity 0.15s;}.wl-rm:hover{color:var(--red);}
+.wl-empty{font-size:0.74rem;color:var(--ink3);text-align:center;padding:0.875rem 0;line-height:1.6;}
+.nav-tabs{display:flex;flex-direction:column;gap:0.2rem;margin-top:auto;}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.79rem;font-weight:500;padding:0.48rem 0.6rem;border-radius:var(--r-sm);color:var(--ink3);transition:all 0.15s;text-align:left;display:flex;align-items:center;gap:0.5rem;border:1px solid transparent;}
+.nav-btn.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent-glow);}
+.nav-btn:hover:not(.active){background:var(--surface2);color:var(--ink);}
+.main{flex:1;padding:1.75rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem;}
+.search-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;box-shadow:var(--shadow);}
+.search-hero{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--ink);margin-bottom:0.2rem;}
+.search-sub{font-size:0.8rem;color:var(--ink3);margin-bottom:1.1rem;}
+.mode-tabs{display:flex;gap:0.4rem;margin-bottom:1rem;}
+.mode-tab{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:0.38rem 0.85rem;font-size:0.77rem;cursor:pointer;color:var(--ink3);font-family:inherit;font-weight:500;transition:all 0.15s;}
+.mode-tab.active{background:var(--accent-dim);border-color:var(--accent-glow);color:var(--accent);}
+.mode-tab:hover:not(.active){background:var(--surface3);color:var(--ink);}
+.sinput{flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;transition:border-color 0.15s;}
+.sinput:focus{border-color:var(--accent2);}.sinput::placeholder{color:var(--ink3);}
+.inputs-row{display:flex;gap:0.5rem;}
+.btn-analyze{background:var(--accent);color:#0e0f0d;border:none;border-radius:var(--r-sm);padding:0.68rem 1.35rem;font-size:0.87rem;cursor:pointer;font-weight:700;font-family:inherit;white-space:nowrap;transition:all 0.15s;}
+.btn-analyze:hover{background:var(--accent2);transform:translateY(-1px);}.btn-analyze:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.bulk-area{width:100%;min-height:96px;padding:0.7rem 0.9rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'DM Mono',monospace;font-size:0.8rem;background:var(--surface2);color:var(--ink);outline:none;resize:vertical;transition:border-color 0.15s;}
+.bulk-area:focus{border-color:var(--accent2);}.bulk-area::placeholder{color:var(--ink3);}
+.chips{display:flex;gap:0.38rem;flex-wrap:wrap;margin-top:0.7rem;}
+.chip{font-size:0.68rem;padding:0.18rem 0.55rem;border:1px solid var(--border);border-radius:20px;background:var(--surface2);color:var(--ink3);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;}
+.chip:hover{background:var(--accent-dim);border-color:var(--accent-glow);color:var(--accent);}
+.add-vendor-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.45rem;}
+.btn-add-vendor{background:none;border:1px dashed var(--border2);border-radius:var(--r-sm);padding:0.28rem 0.7rem;font-size:0.73rem;color:var(--ink3);cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-add-vendor:hover{border-color:var(--accent-glow);color:var(--accent);}
+.vc-count{font-size:0.68rem;color:var(--ink3);font-family:'DM Mono',monospace;}
+.loading-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:3rem;text-align:center;}
+.spinner{width:30px;height:30px;border:2.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 0.875rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:0.87rem;color:var(--ink2);}.loading-step{font-size:0.7rem;color:var(--ink3);margin-top:0.3rem;font-family:'DM Mono',monospace;}
+.vendor-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);overflow:hidden;animation:fadeUp 0.35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.vc-header{padding:1.5rem;background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+.vc-title-area{flex:1;}
+.vc-name{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--ink);line-height:1;margin-bottom:0.3rem;}
+.vc-tagline{font-size:0.83rem;color:var(--ink3);margin-bottom:0.7rem;line-height:1.5;}
+.vc-badges{display:flex;gap:0.38rem;flex-wrap:wrap;}
+.badge{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:0.18rem 0.5rem;border-radius:4px;font-family:'DM Mono',monospace;}
+.badge-cat{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);}
+.badge-stage{background:var(--surface3);color:var(--ink2);border:1px solid var(--border2);}
+.badge-hipaa{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(96,165,250,0.25);}
+.badge-rflag{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,0.25);}
+.vc-score-area{text-align:center;flex-shrink:0;}
+.fit-ring{width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid;}
+.fit-high{border-color:var(--accent);box-shadow:0 0 18px var(--accent-glow);}
+.fit-med{border-color:var(--gold);box-shadow:0 0 18px rgba(251,191,36,0.2);}
+.fit-low{border-color:var(--red);box-shadow:0 0 18px rgba(248,113,113,0.2);}
+.fit-num{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;line-height:1;}
+.fit-high .fit-num{color:var(--accent);}.fit-med .fit-num{color:var(--gold);}.fit-low .fit-num{color:var(--red);}
+.fit-label{font-size:0.48rem;color:var(--ink3);text-transform:uppercase;letter-spacing:0.5px;}
+.fit-caption{font-size:0.58rem;color:var(--ink3);margin-top:0.3rem;}
+.mat-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.7rem;}
+.mat-label{font-size:0.62rem;color:var(--ink3);font-family:'DM Mono',monospace;white-space:nowrap;}
+.mat-bar{flex:1;height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.mat-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--red),var(--gold),var(--accent));}
+.mat-val{font-size:0.62rem;color:var(--ink2);font-family:'DM Mono',monospace;white-space:nowrap;}
+.vc-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.vc-sec{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:0.875rem;}
+.vc-sec.full{grid-column:1/-1;}
+.vc-sec-title{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink3);font-weight:600;margin-bottom:0.5rem;font-family:'DM Mono',monospace;}
+.vc-sec p{font-size:0.81rem;color:var(--ink2);line-height:1.65;}
+.tag-list{display:flex;flex-wrap:wrap;gap:0.3rem;}
+.tag{font-size:0.68rem;padding:0.15rem 0.45rem;border-radius:4px;font-family:'DM Mono',monospace;}
+.tag-g{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);}
+.tag-w{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(251,146,60,0.3);}
+.tag-r{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,0.3);}
+.tag-n{background:var(--surface3);color:var(--ink2);border:1px solid var(--border2);}
+.pr-row{padding:0.42rem 0;border-bottom:1px solid var(--border);}
+.pr-row:last-child{border-bottom:none;}
+.pr-top{display:flex;align-items:center;gap:0.7rem;}
+.pr-name{font-size:0.77rem;color:var(--ink2);flex:1;}
+.pr-bar{flex:1;height:3px;background:var(--border2);border-radius:2px;}
+.pr-fill{height:100%;border-radius:2px;}
+.pr-score{font-family:'DM Mono',monospace;font-weight:500;font-size:0.76rem;flex-shrink:0;}
+.pr-rationale{font-size:0.68rem;color:var(--ink3);margin-top:0.2rem;line-height:1.4;font-style:italic;}
+.rflag-item{display:flex;align-items:flex-start;gap:0.45rem;padding:0.38rem 0;border-bottom:1px solid var(--border);}
+.rflag-item:last-child{border-bottom:none;}
+.rflag-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:0.38rem;}
+.rflag-text{font-size:0.77rem;color:var(--ink2);line-height:1.5;}
+.vc-footer{padding:0.875rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:var(--surface2);}
+.btn-wl{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);border-radius:var(--r-sm);padding:0.45rem 0.875rem;font-size:0.78rem;cursor:pointer;font-weight:600;font-family:inherit;transition:all 0.15s;}
+.btn-wl:hover{background:var(--accent);color:#0e0f0d;}.btn-wl.saved{background:var(--accent);color:#0e0f0d;}
+.btn-share{background:var(--surface3);color:var(--ink2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:0.45rem 0.875rem;font-size:0.78rem;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-share:hover{color:var(--ink);}
+.sim-chip{font-size:0.68rem;padding:0.18rem 0.5rem;border:1px solid var(--border2);border-radius:20px;background:var(--surface3);color:var(--ink3);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;}
+.sim-chip:hover{background:var(--ink);color:var(--bg);}
+.notes-area{width:100%;min-height:66px;padding:0.55rem 0.7rem;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:inherit;font-size:0.78rem;background:var(--surface3);color:var(--ink);outline:none;resize:vertical;transition:border-color 0.15s;}
+.notes-area:focus{border-color:var(--accent2);}.notes-area::placeholder{color:var(--ink3);}
+.notes-saved{font-size:0.65rem;color:var(--accent);font-family:'DM Mono',monospace;margin-top:0.25rem;opacity:0;transition:opacity 0.3s;}
+.rating-row{display:flex;align-items:center;gap:0.6rem;}
+.rating-btn{display:flex;align-items:center;gap:0.3rem;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:0.38rem 0.7rem;cursor:pointer;font-family:inherit;font-size:0.78rem;color:var(--ink3);transition:all 0.15s;}
+.rating-btn.active-up{background:var(--accent-dim);border-color:var(--accent-glow);color:var(--accent);}
+.rating-btn.active-down{background:var(--red-dim);border-color:rgba(248,113,113,0.3);color:var(--red);}
+.r-cnt{font-family:'DM Mono',monospace;font-size:0.72rem;}
+.chat-wrap{display:flex;flex-direction:column;gap:0.6rem;}
+.chat-msgs{display:flex;flex-direction:column;gap:0.4rem;max-height:160px;overflow-y:auto;}
+.chat-msg{padding:0.45rem 0.7rem;border-radius:var(--r-sm);font-size:0.78rem;line-height:1.5;}
+.chat-msg.user{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);align-self:flex-end;max-width:82%;}
+.chat-msg.ai{background:var(--surface3);color:var(--ink2);border:1px solid var(--border2);align-self:flex-start;max-width:96%;}
+.chat-row{display:flex;gap:0.4rem;}
+.chat-input{flex:1;padding:0.45rem 0.7rem;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:inherit;font-size:0.78rem;background:var(--surface3);color:var(--ink);outline:none;}
+.chat-input:focus{border-color:var(--accent2);}.chat-input::placeholder{color:var(--ink3);}
+.btn-chat{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);border-radius:var(--r-sm);padding:0.45rem 0.85rem;font-size:0.78rem;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;}
+.btn-chat:hover{background:var(--accent);color:#0e0f0d;}.btn-chat:disabled{opacity:0.5;cursor:not-allowed;}
+.cmp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);overflow:hidden;animation:fadeUp 0.35s ease;}
+.cmp-hdr{background:var(--surface2);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.cmp-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--ink);}
+.cmp-tbl{width:100%;border-collapse:collapse;}
+.cmp-tbl th{background:var(--surface2);padding:0.68rem 1rem;font-size:0.65rem;font-weight:600;text-align:left;border-bottom:2px solid var(--border);color:var(--ink3);text-transform:uppercase;letter-spacing:0.5px;font-family:'DM Mono',monospace;}
+.cmp-tbl th:first-child{width:130px;}.cmp-tbl td{padding:0.6rem 1rem;font-size:0.78rem;border-bottom:1px solid var(--border);vertical-align:top;color:var(--ink2);line-height:1.5;}
+.cmp-tbl tr:last-child td{border-bottom:none;}.cmp-tbl tr:nth-child(even) td{background:var(--surface2);}
+.row-lbl{font-weight:600;font-size:0.63rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3);font-family:'DM Mono',monospace;}
+.catmap-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.catmap-hdr{padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface2);}
+.catmap-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--ink);}
+.map-canvas{position:relative;width:100%;height:400px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-sm);overflow:hidden;}
+.ax-h{position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border2);}
+.ax-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border2);}
+.map-dot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform 0.2s;z-index:10;}
+.map-dot:hover{transform:translate(-50%,-50%) scale(1.12);}
+.dot-bubble{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'DM Mono',monospace;color:#0e0f0d;border:2px solid rgba(255,255,255,0.15);}
+.dot-label{font-size:0.6rem;color:var(--ink2);font-family:'DM Mono',monospace;white-space:nowrap;background:var(--surface);padding:1px 4px;border-radius:3px;border:1px solid var(--border);}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.dash-hdr{background:var(--surface2);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.dash-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--ink);}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0.875rem;padding:1.25rem;}
+.dash-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:0.875rem;cursor:pointer;transition:all 0.15s;position:relative;}
+.dash-item:hover{border-color:var(--border2);}
+.dash-item:hover .dash-rm{opacity:1;}
+.dash-name{font-weight:600;font-size:0.83rem;margin-bottom:0.12rem;color:var(--ink);}
+.dash-cat{font-size:0.63rem;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:0.45rem;}
+.fit-b{font-family:'DM Mono',monospace;font-size:0.68rem;font-weight:500;padding:0.1rem 0.38rem;border-radius:4px;display:inline-block;}
+.fit-bh{background:var(--accent-dim);color:var(--accent);}.fit-bm{background:var(--gold-dim);color:var(--gold);}.fit-bl{background:var(--red-dim);color:var(--red);}
+.dash-rm{position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;cursor:pointer;color:var(--ink3);font-size:0.72rem;opacity:0;transition:opacity 0.15s;}.dash-rm:hover{color:var(--warn);}
+.err-card{background:var(--red-dim);border:1px solid rgba(248,113,113,0.3);border-radius:var(--r);padding:1.1rem 1.4rem;}
+.err-card p{font-size:0.81rem;color:var(--red);}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--surface);border:1px solid var(--accent-glow);border-radius:var(--r-sm);padding:0.65rem 1rem;font-size:0.8rem;color:var(--accent);box-shadow:var(--shadow-lg);animation:toastIn 0.3s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.bulk-pi{display:flex;align-items:center;gap:0.7rem;padding:0.45rem 0.7rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:0.35rem;}
+.bp-stat{font-size:0.7rem;font-family:'DM Mono',monospace;width:75px;flex-shrink:0;color:var(--ink3);}
+.bp-name{font-size:0.8rem;color:var(--ink2);flex:1;}
+.bp-sc{font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--ink3);}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">Vendor<span>Lens</span></div>
-  <div class="header-sub">Healthcare AI Intelligence Platform</div>
+  <div class="logo">Vendor<em>Lens</em></div>
+  <div class="header-right">
+    <span class="header-badge">Healthcare AI Intelligence</span>
+    <span class="header-url">rini18.github.io/vendorlens</span>
+  </div>
 </header>
-
 <div class="app">
   <aside class="sidebar">
     <div>
-      <div class="sidebar-label">Strategic Priorities</div>
+      <div class="sec-label">Strategic Priorities</div>
       <div id="priority-list"></div>
-      <div class="priority-add">
-        <input id="p-input" type="text" placeholder="Add priority…" maxlength="60" />
-        <button class="btn-add" onclick="addPriority()">+</button>
+      <div class="p-add">
+        <input id="p-input" type="text" placeholder="Add priority…" maxlength="60"/>
+        <button class="btn-sm" onclick="addPriority()">+</button>
       </div>
     </div>
     <div>
-      <div class="sidebar-label">Vendor Watchlist <span id="wl-count" style="color:var(--accent);font-size:0.7rem;"></span></div>
-      <div id="watchlist"></div>
+      <div class="sec-label">Watchlist <span id="wl-count" style="color:var(--accent);"></span></div>
+      <div id="wl-list"></div>
     </div>
-    <div style="margin-top:auto;">
-      <div class="sidebar-label">View</div>
-      <div class="tabs">
-        <button class="tab-btn active" id="tab-analyze" onclick="setView('analyze')">🔍 Analyze Vendor</button>
-        <button class="tab-btn" id="tab-dashboard" onclick="setView('dashboard')">📊 My Landscape</button>
-      </div>
+    <div class="nav-tabs">
+      <div class="sec-label">View</div>
+      <button class="nav-btn active" id="tab-analyze" onclick="setView('analyze')">🔍 Analyze</button>
+      <button class="nav-btn" id="tab-map" onclick="setView('map')">🗺 Category Map</button>
+      <button class="nav-btn" id="tab-dashboard" onclick="setView('dashboard')">📊 My Landscape</button>
     </div>
   </aside>
-
   <main class="main">
     <div id="view-analyze" style="display:flex;flex-direction:column;gap:1.5rem;">
       <div class="search-card">
-        <div class="search-title">Vendor Intelligence</div>
-        <div class="search-sub">Enter one or two company names to generate a vendor profile scored against your strategic priorities.</div>
-        <div class="search-row">
-          <div class="search-inputs">
-            <input class="search-input" id="vendor1" type="text" placeholder="Company name (e.g. Twin Health)" />
-            <input class="search-input" id="vendor2" type="text" placeholder="Compare with… (optional)" />
-          </div>
-          <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
+        <div class="search-hero">Vendor Intelligence</div>
+        <div class="search-sub">Instant profiles, priority scoring, red flags, and comparison — built for healthcare payers.</div>
+        <div class="mode-tabs">
+          <button class="mode-tab active" id="mode-single" onclick="setMode('single')">Single / Compare</button>
+          <button class="mode-tab" id="mode-bulk" onclick="setMode('bulk')">Bulk Analyze</button>
         </div>
-        <div class="chips">
-          <span class="chip" onclick="quickSearch('Twin Health')">Twin Health</span>
-          <span class="chip" onclick="quickSearch('Pomelo Health')">Pomelo Health</span>
-          <span class="chip" onclick="quickSearch('Interactly')">Interactly</span>
-          <span class="chip" onclick="quickSearch('Counsel Health')">Counsel Health</span>
-          <span class="chip" onclick="quickSearch('Parallel AI')">Parallel AI</span>
-          <span class="chip" onclick="quickSearch('Abridge')">Abridge</span>
-          <span class="chip" onclick="quickSearch('Nabla')">Nabla</span>
+        <div id="panel-single">
+          <div style="display:flex;flex-direction:column;gap:0.45rem;">
+            <div class="inputs-row">
+              <input class="sinput" id="vendor1" type="text" placeholder="Company name (e.g. Twin Health)"/>
+              <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
+            </div>
+            <div id="extra-vendors"></div>
+            <div class="add-vendor-row">
+              <button class="btn-add-vendor" onclick="addVI()">+ Add vendor to compare</button>
+              <span class="vc-count" id="vc-lbl"></span>
+            </div>
+          </div>
+          <div class="chips">
+            <span class="chip" onclick="qs('Twin Health')">Twin Health</span>
+            <span class="chip" onclick="qs('Pomelo Health')">Pomelo Health</span>
+            <span class="chip" onclick="qs('Interactly')">Interactly</span>
+            <span class="chip" onclick="qs('Counsel Health')">Counsel Health</span>
+            <span class="chip" onclick="qs('Parallel AI')">Parallel AI</span>
+            <span class="chip" onclick="qs('Abridge')">Abridge</span>
+            <span class="chip" onclick="qs('Nabla')">Nabla</span>
+            <span class="chip" onclick="qs('Innovaccer')">Innovaccer</span>
+          </div>
+        </div>
+        <div id="panel-bulk" style="display:none;">
+          <textarea class="bulk-area" id="bulk-input" placeholder="Paste up to 10 vendor names, one per line:&#10;Twin Health&#10;Pomelo Health&#10;Interactly&#10;Abridge"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:0.7rem;">
+            <button class="btn-analyze" onclick="runBulk()">Analyze All →</button>
+          </div>
         </div>
       </div>
       <div id="results-area"></div>
     </div>
+    <div id="view-map" style="display:none;">
+      <div class="catmap-card">
+        <div class="catmap-hdr">
+          <div class="catmap-title">Healthcare AI Category Map</div>
+          <div style="font-size:0.7rem;color:var(--ink3);margin-top:0.15rem;">Vendors plotted by clinical vs administrative focus · Bubble size = Fit Score · Click to view profile</div>
+        </div>
+        <div style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
+            <span style="font-size:0.63rem;color:var(--ink3);font-family:'DM Mono',monospace;">← Clinical Focus</span>
+            <span style="font-size:0.63rem;color:var(--ink3);font-family:'DM Mono',monospace;">Administrative Focus →</span>
+          </div>
+          <div class="map-canvas" id="map-canvas">
+            <div class="ax-h"></div><div class="ax-v"></div>
+            <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:0.58rem;color:var(--ink3);font-family:'DM Mono',monospace;">Enterprise Ready ↑</div>
+            <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:0.58rem;color:var(--ink3);font-family:'DM Mono',monospace;">↓ Early Stage</div>
+            <div id="map-dots"></div>
+          </div>
+          <div style="text-align:center;margin-top:0.7rem;font-size:0.68rem;color:var(--ink3);">Save vendors to your watchlist to see them plotted here</div>
+        </div>
+      </div>
+    </div>
     <div id="view-dashboard" style="display:none;">
       <div class="dash-card">
-        <div class="dash-header">
+        <div class="dash-hdr">
           <div class="dash-title">My AI Vendor Landscape</div>
-          <div style="font-size:0.75rem;color:#9a9790;" id="dash-count"></div>
+          <div style="font-size:0.7rem;color:var(--ink3);" id="dash-count"></div>
         </div>
         <div class="dash-grid" id="dash-grid"></div>
       </div>
     </div>
   </main>
 </div>
-
 <script>
-// ── State ──
-let priorities = [
-  "Reduce prior authorization turnaround time",
-  "Improve member engagement & retention",
-  "Automate clinical documentation",
-  "Support chronic care management programs"
-];
-let watchlist = [];
-let currentVendors = [];
-let lastVendorData = null;
+let priorities=["Reduce prior authorization turnaround time","Improve member engagement & retention","Automate clinical documentation","Support chronic care management programs"];
+let watchlist=[],currentVendors=[],lastVendorData=null,vendorCount=1,radarChart=null,notes={},ratings={};
 
-// ── Priorities ──
-function renderPriorities() {
-  const el = document.getElementById('priority-list');
-  el.innerHTML = priorities.length
-    ? priorities.map((p,i) => `<div class="priority-item"><div class="priority-dot"></div><div class="priority-text">${p}</div><button class="p-remove" onclick="removePriority(${i})">✕</button></div>`).join('')
-    : '<div style="font-size:0.75rem;color:var(--ink3);margin-bottom:0.5rem;">No priorities set</div>';
-}
-function addPriority() {
-  const inp = document.getElementById('p-input'), v = inp.value.trim();
-  if (!v) return; priorities.push(v); inp.value = ''; renderPriorities();
-}
-function removePriority(i) { priorities.splice(i,1); renderPriorities(); }
-document.getElementById('p-input').addEventListener('keydown', e => { if (e.key==='Enter') addPriority(); });
-
-// ── Watchlist ──
-function renderWatchlist() {
-  document.getElementById('wl-count').textContent = watchlist.length ? `(${watchlist.length})` : '';
-  const el = document.getElementById('watchlist');
-  el.innerHTML = watchlist.length
-    ? watchlist.map((v,i) => `<div class="wl-item" onclick="loadWL(${i})"><div class="wl-icon">${v.name.slice(0,2)}</div><div class="wl-info"><div class="wl-name">${v.name}</div><div class="wl-cat">${v.category||'Healthcare AI'}</div></div><button class="wl-remove" onclick="event.stopPropagation();removeWL(${i})">✕</button></div>`).join('')
-    : '<div class="wl-empty">No vendors saved yet.<br>Analyze a company and add it to your watchlist.</div>';
-}
-function addToWatchlist(d) {
-  const idx = watchlist.findIndex(v => v.name.toLowerCase()===d.name.toLowerCase());
-  if (idx>=0) watchlist.splice(idx,1);
-  watchlist.unshift({name:d.name, category:d.category, fitScore:d.fitScore, data:d});
-  renderWatchlist(); renderDashboard();
-}
-function removeWL(i) { watchlist.splice(i,1); renderWatchlist(); renderDashboard(); }
-function loadWL(i) { setView('analyze'); renderVendorCard(watchlist[i].data); }
-function toggleWatchlist() {
-  if (!lastVendorData) return;
-  const idx = watchlist.findIndex(v => v.name.toLowerCase()===lastVendorData.name.toLowerCase());
-  if (idx>=0) { watchlist.splice(idx,1); renderWatchlist(); renderDashboard(); }
-  else addToWatchlist(lastVendorData);
-  updateWLBtn();
-}
-function updateWLBtn() {
-  const btn = document.getElementById('wl-main-btn'); if (!btn||!lastVendorData) return;
-  const saved = watchlist.some(v => v.name.toLowerCase()===lastVendorData.name.toLowerCase());
-  btn.textContent = saved ? '✓ Saved to Watchlist' : '+ Add to Watchlist';
-  btn.className = 'btn-wl' + (saved?' saved':'');
+async function callAPI(payload){
+  let k=sessionStorage.getItem('vl_key');
+  if(!k){k=prompt('Enter your Anthropic API key:\n(Stored for this session only)');if(!k)throw new Error('API key required');sessionStorage.setItem('vl_key',k);}
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(payload)});
+  if(!r.ok){if(r.status===401)sessionStorage.removeItem('vl_key');throw new Error(`Request failed (${r.status})`);}
+  return r.json();
 }
 
-// ── View ──
-function setView(v) {
-  document.getElementById('view-analyze').style.display = v==='analyze' ? 'flex' : 'none';
-  document.getElementById('view-dashboard').style.display = v==='dashboard' ? 'block' : 'none';
-  document.getElementById('tab-analyze').classList.toggle('active', v==='analyze');
-  document.getElementById('tab-dashboard').classList.toggle('active', v==='dashboard');
-  if (v==='dashboard') renderDashboard();
+function buildPayload(name){
+  const pList=priorities.length?priorities.map((p,i)=>`${i+1}. ${p}`).join('\n'):'1. Reduce costs\n2. Improve outcomes';
+  return{model:"claude-sonnet-4-6",max_tokens:1500,system:"You are a healthcare AI vendor intelligence analyst for a payer. Respond ONLY with valid raw JSON. No markdown, no backticks.",messages:[{role:"user",content:`Analyze healthcare AI vendor "${name}" for a health insurance payer.\n\nStrategic priorities:\n${pList}\n\nReturn ONLY this JSON (no markdown):\n{"name":"Official name","tagline":"One sentence","category":"e.g. Chronic Care Management","targetCustomer":"Payers/Providers/Patients","stage":"e.g. Series B","hipaaCompliant":true,"hl7Fhir":true,"coreUseCase":"2-3 sentences","differentiator":"2-3 sentences","strengths":["s1","s2","s3"],"concerns":["c1","c2"],"redFlags":["specific risk: brief explanation"],"integrationsLikely":["Epic"],"priorityScores":[{"priority":"label max 35 chars","score":8,"rationale":"one sentence why this score"}],"fitScore":7,"fitRationale":"2 sentences","maturityScore":7,"maturityLabel":"Enterprise Ready","maturityAssessment":"1-2 sentences on enterprise readiness","clinicalVsAdmin":0.3,"similarVendors":["A","B"],"fundingNotes":"Brief","payerCustomers":"Known or Not publicly disclosed"}\n\nclinicalVsAdmin: 0.0=pure clinical, 1.0=pure admin. maturityScore/fitScore: integers 1-10.`}]};
 }
 
-// ── Dashboard ──
-function renderDashboard() {
-  const grid = document.getElementById('dash-grid');
-  document.getElementById('dash-count').textContent = `${watchlist.length} vendor${watchlist.length!==1?'s':''} tracked`;
-  grid.innerHTML = watchlist.length
-    ? watchlist.map((v,i) => {
-        const fc = v.fitScore>=7?'fit-badge-h':v.fitScore>=5?'fit-badge-m':'fit-badge-l';
-        return `<div class="dash-item" onclick="loadWL(${i})"><button class="dash-remove" onclick="event.stopPropagation();removeWL(${i})">✕</button><div class="dash-item-name">${v.name}</div><div class="dash-item-cat">${v.category||'Healthcare AI'}</div><div class="fit-badge ${fc}">Fit ${v.fitScore}/10</div></div>`;
-      }).join('')
-    : '<div style="padding:2rem;font-size:0.85rem;color:var(--ink3);grid-column:1/-1;text-align:center;">No vendors yet. Analyze and save vendors to build your portfolio.</div>';
+function parseVendor(data){const t=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error('Could not parse response');return JSON.parse(m[0]);}
+
+function renderPriorities(){const el=document.getElementById('priority-list');el.innerHTML=priorities.length?priorities.map((p,i)=>`<div class="priority-pill"><div class="pdot"></div><div class="ptext">${p}</div><button class="p-rm" onclick="removePriority(${i})">✕</button></div>`).join(''):'<div style="font-size:0.71rem;color:var(--ink3);margin-bottom:0.4rem;">No priorities set</div>';}
+function addPriority(){const inp=document.getElementById('p-input'),v=inp.value.trim();if(!v)return;priorities.push(v);inp.value='';renderPriorities();}
+function removePriority(i){priorities.splice(i,1);renderPriorities();}
+document.getElementById('p-input').addEventListener('keydown',e=>{if(e.key==='Enter')addPriority();});
+
+function renderWatchlist(){
+  document.getElementById('wl-count').textContent=watchlist.length?`(${watchlist.length})`:'';
+  const el=document.getElementById('wl-list');
+  el.innerHTML=watchlist.length?watchlist.map((v,i)=>`<div class="wl-item" onclick="loadWL(${i})"><div class="wl-icon">${v.name.slice(0,2)}</div><div class="wl-info"><div class="wl-name">${v.name}</div><div class="wl-cat">${v.category||'Healthcare AI'}</div></div><button class="wl-rm" onclick="event.stopPropagation();removeWL(${i})">✕</button></div>`).join(''):'<div class="wl-empty">No vendors saved yet.</div>';
+}
+function addToWatchlist(d){const i=watchlist.findIndex(v=>v.name.toLowerCase()===d.name.toLowerCase());if(i>=0)watchlist.splice(i,1);watchlist.unshift({name:d.name,category:d.category,fitScore:d.fitScore,data:d});renderWatchlist();renderDashboard();renderMap();}
+function removeWL(i){watchlist.splice(i,1);renderWatchlist();renderDashboard();renderMap();}
+function loadWL(i){setView('analyze');renderVendorCard(watchlist[i].data);}
+function toggleWL(){if(!lastVendorData)return;const i=watchlist.findIndex(v=>v.name.toLowerCase()===lastVendorData.name.toLowerCase());if(i>=0){watchlist.splice(i,1);renderWatchlist();renderDashboard();renderMap();}else addToWatchlist(lastVendorData);updateWLBtn();}
+function updateWLBtn(){const btn=document.getElementById('wl-main-btn');if(!btn||!lastVendorData)return;const s=watchlist.some(v=>v.name.toLowerCase()===lastVendorData.name.toLowerCase());btn.textContent=s?'✓ Saved':'+ Save to Watchlist';btn.className='btn-wl'+(s?' saved':'');}
+
+function setView(v){
+  ['analyze','map','dashboard'].forEach(id=>{const el=document.getElementById('view-'+id);if(el)el.style.display='none';const tb=document.getElementById('tab-'+id);if(tb)tb.classList.remove('active');});
+  const el=document.getElementById('view-'+v);if(!el)return;
+  el.style.display=v==='analyze'?'flex':'block';
+  if(v==='analyze'){el.style.flexDirection='column';el.style.gap='1.5rem';}
+  const tb=document.getElementById('tab-'+v);if(tb)tb.classList.add('active');
+  if(v==='dashboard')renderDashboard();
+  if(v==='map')renderMap();
 }
 
-function quickSearch(name) { document.getElementById('vendor1').value=name; document.getElementById('vendor2').value=''; runAnalysis(); }
+function setMode(m){
+  document.getElementById('mode-single').classList.toggle('active',m==='single');
+  document.getElementById('mode-bulk').classList.toggle('active',m==='bulk');
+  document.getElementById('panel-single').style.display=m==='single'?'block':'none';
+  document.getElementById('panel-bulk').style.display=m==='bulk'?'block':'none';
+}
 
-// ── API call via proxy ──
-async function callProxy(payload) {
-  let apiKey = sessionStorage.getItem('vl_key');
-  if (!apiKey) {
-    apiKey = prompt('Enter your Anthropic API key to use VendorLens:\n(It will be remembered for this session only)');
-    if (!apiKey) throw new Error('API key required');
-    sessionStorage.setItem('vl_key', apiKey);
+function addVI(){if(vendorCount>=4){showToast('Maximum 4 vendors');return;}vendorCount++;const d=document.createElement('div');d.style.cssText='display:flex;gap:0.5rem;margin-top:0.45rem;';d.innerHTML=`<input class="sinput" id="vendor${vendorCount}" type="text" placeholder="Vendor ${vendorCount}…" style="flex:1;"/><button onclick="removeVI(${vendorCount},this)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1rem;padding:0 0.4rem;">✕</button>`;document.getElementById('extra-vendors').appendChild(d);document.getElementById('vc-lbl').textContent=`${vendorCount} vendors`;}
+function removeVI(n,btn){btn.parentElement.remove();vendorCount--;document.getElementById('vc-lbl').textContent=vendorCount>1?`${vendorCount} vendors`:'';;}
+function qs(name){document.getElementById('vendor1').value=name;document.getElementById('extra-vendors').innerHTML='';vendorCount=1;document.getElementById('vc-lbl').textContent='';setMode('single');runAnalysis();}
+
+function showToast(msg,dur=2500){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},dur);}
+function shareVendor(d){const url=`${location.origin}${location.pathname}?v=${encodeURIComponent(d.name)}`;navigator.clipboard.writeText(url).then(()=>showToast('📋 Link copied to clipboard!'));}
+
+function showLoading(names){const steps=['Generating vendor intelligence…','Scoring against your priorities…','Detecting red flags & maturity…','Building vendor card…'];let si=0;document.getElementById('results-area').innerHTML=`<div class="loading-card"><div class="spinner"></div><div class="loading-text">Analyzing ${names}…</div><div class="loading-step" id="lstep">${steps[0]}</div></div>`;const t=setInterval(()=>{si=(si+1)%steps.length;const el=document.getElementById('lstep');if(el)el.textContent=steps[si];else clearInterval(t);},2000);}
+
+async function runAnalysis(){
+  const v1=document.getElementById('vendor1').value.trim();if(!v1){document.getElementById('vendor1').focus();return;}
+  const vendors=[v1];for(let i=2;i<=4;i++){const el=document.getElementById('vendor'+i);if(el&&el.value.trim())vendors.push(el.value.trim());}
+  const btn=document.getElementById('analyze-btn');btn.disabled=true;btn.textContent='Analyzing…';
+  showLoading(vendors.join(', '));
+  try{
+    if(vendors.length===1){const data=await callAPI(buildPayload(vendors[0]));renderVendorCard(parseVendor(data));}
+    else{const results=await Promise.all(vendors.map(v=>callAPI(buildPayload(v)).then(parseVendor)));currentVendors=results;renderCompare(results);}
+  }catch(e){document.getElementById('results-area').innerHTML=`<div class="err-card"><p>⚠️ ${e.message||'Something went wrong.'}</p></div>`;}
+  btn.disabled=false;btn.textContent='Analyze →';
+}
+
+async function runBulk(){
+  const raw=document.getElementById('bulk-input').value.trim();if(!raw)return;
+  const vendors=raw.split('\n').map(v=>v.trim()).filter(Boolean).slice(0,10);if(!vendors.length)return;
+  const area=document.getElementById('results-area');
+  const statuses={};vendors.forEach(v=>statuses[v]='pending');
+  const results=[];window._bRes={};
+  function prog(){area.innerHTML=`<div class="vendor-card" style="padding:1.5rem;"><div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--ink);margin-bottom:0.875rem;">Analyzing ${vendors.length} vendors…</div>${vendors.map(v=>`<div class="bulk-pi"><div class="bp-stat" id="bs-${v.replace(/\W/g,'_')}">${statuses[v]==='pending'?'⏳ Waiting':statuses[v]==='analyzing'?'🔄 Analyzing':statuses[v]==='done'?'✅ Done':'❌ Error'}</div><div class="bp-name">${v}</div><div class="bp-sc" id="bsc-${v.replace(/\W/g,'_')}"></div></div>`).join('')}<div id="bulk-res" style="margin-top:1rem;"></div></div>`;}
+  prog();
+  for(const v of vendors){
+    statuses[v]='analyzing';prog();
+    try{const data=await callAPI(buildPayload(v));const d=parseVendor(data);statuses[v]='done';results.push(d);window._bRes[d.name]=d;const sc=document.getElementById('bsc-'+v.replace(/\W/g,'_'));if(sc)sc.textContent=`${d.fitScore}/10`;prog();}
+    catch(e){statuses[v]='error';prog();}
   }
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify(payload)
-  });
-  if (!resp.ok) {
-    if (resp.status === 401) { sessionStorage.removeItem('vl_key'); }
-    throw new Error(`Request failed (${resp.status})`);
-  }
-  return resp.json();
+  const br=document.getElementById('bulk-res');
+  if(br&&results.length){br.innerHTML=`<div style="font-size:0.72rem;color:var(--ink3);border-top:1px solid var(--border);padding-top:0.875rem;margin-bottom:0.5rem;">Ranked by fit score — click to view full profile:</div>`+results.sort((a,b)=>b.fitScore-a.fitScore).map(d=>{const fc=d.fitScore>=7?'fit-bh':d.fitScore>=5?'fit-bm':'fit-bl';return`<div onclick="renderVendorCard(window._bRes['${d.name}'])" style="display:flex;align-items:center;gap:0.7rem;padding:0.55rem 0.7rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;margin-bottom:0.3rem;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'"><span class="fit-b ${fc}" style="min-width:40px;text-align:center;">${d.fitScore}/10</span><span style="font-size:0.81rem;font-weight:500;color:var(--ink);flex:1;">${d.name}</span><span style="font-size:0.68rem;color:var(--ink3);font-family:'DM Mono',monospace;">${d.category||''}</span>${(d.redFlags||[]).length?`<span style="font-size:0.65rem;color:var(--red);">⚠ ${d.redFlags.length} flag${d.redFlags.length>1?'s':''}</span>`:''}<button onclick="event.stopPropagation();addToWatchlist(window._bRes['${d.name}']);showToast('Saved ${d.name}')" style="background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);border-radius:4px;padding:0.18rem 0.5rem;font-size:0.68rem;cursor:pointer;font-family:inherit;font-weight:600;">+ Save</button></div>`;}).join('');}
 }
 
-function buildPayload(vendorName) {
-  const pList = priorities.length
-    ? priorities.map((p,i) => `${i+1}. ${p}`).join('\n')
-    : '1. Reduce costs\n2. Improve member outcomes';
-
-  return {
-    model: "claude-sonnet-4-6",
-    max_tokens: 1000,
-    system: "You are a healthcare AI vendor intelligence analyst for a payer organization. You have deep knowledge of healthcare AI companies. Respond ONLY with a valid raw JSON object. No markdown, no backticks, no preamble.",
-    messages: [{
-      role: "user",
-      content: `Analyze healthcare AI vendor "${vendorName}" for a health insurance payer evaluating AI vendors.
-
-Our strategic priorities:
-${pList}
-
-Return ONLY this JSON (raw, no markdown, no backticks):
-{"name":"Official company name","tagline":"One sentence what they do","category":"e.g. Chronic Care Management","targetCustomer":"Payers / Providers / Patients / Employers","stage":"e.g. Series B / Enterprise","hipaaCompliant":true,"hl7Fhir":true,"coreUseCase":"2-3 sentences on core product","differentiator":"2-3 sentences on what makes them unique","strengths":["strength 1","strength 2","strength 3"],"concerns":["concern 1","concern 2"],"integrationsLikely":["Epic","Salesforce Health Cloud"],"priorityScores":[{"priority":"Short label max 40 chars","score":8,"rationale":"brief reason"}],"fitScore":7,"fitRationale":"2 sentence summary of fit for a healthcare payer","similarVendors":["Competitor A","Competitor B"],"fundingNotes":"Brief funding note","payerCustomers":"Known payer customers or Not publicly disclosed"}`
-    }]
-  };
-}
-
-// ── Main analysis ──
-async function runAnalysis() {
-  const v1 = document.getElementById('vendor1').value.trim();
-  const v2 = document.getElementById('vendor2').value.trim();
-  if (!v1) { document.getElementById('vendor1').focus(); return; }
-
-  const btn = document.getElementById('analyze-btn');
-  btn.disabled = true; btn.textContent = 'Analyzing…';
-  const area = document.getElementById('results-area');
-
-  // Loading spinner
-  area.innerHTML = `
-    <div class="loading-card">
-      <div class="spinner"></div>
-      <div class="loading-text">Analyzing ${v1}${v2 ? ' & ' + v2 : ''}…</div>
-      <div class="loading-step" id="loading-step">Generating vendor intelligence…</div>
-    </div>`;
-
-  const steps = ['Generating vendor intelligence…','Scoring against your priorities…','Building vendor card…'];
-  let si = 0;
-  const ticker = setInterval(() => {
-    si = (si+1) % steps.length;
-    const el = document.getElementById('loading-step');
-    if (el) el.textContent = steps[si];
-  }, 2000);
-
-  try {
-    if (v2) {
-      const [d1, d2] = await Promise.all([
-        callProxy(buildPayload(v1)).then(parseVendor),
-        callProxy(buildPayload(v2)).then(parseVendor)
-      ]);
-      clearInterval(ticker);
-      currentVendors = [d1, d2];
-      renderCompare(d1, d2);
-    } else {
-      const data = await callProxy(buildPayload(v1));
-      clearInterval(ticker);
-      const d = parseVendor(data);
-      renderVendorCard(d);
-    }
-  } catch(e) {
-    clearInterval(ticker);
-    area.innerHTML = `<div class="error-card"><p>⚠️ ${e.message||'Something went wrong. Please try again.'}</p></div>`;
-  }
-
-  btn.disabled = false; btn.textContent = 'Analyze →';
-}
-
-function parseVendor(data) {
-  const text = (data.content || []).filter(b => b.type==='text').map(b => b.text).join('');
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Could not parse vendor data. Please try again.');
-  return JSON.parse(match[0]);
-}
-
-// ── Render vendor card ──
-function renderVendorCard(d) {
-  lastVendorData = d;
-  const saved = watchlist.some(v => v.name.toLowerCase()===d.name.toLowerCase());
-  const fitClass = d.fitScore>=7?'fit-high':d.fitScore>=5?'fit-med':'fit-low';
-
-  const pRows = (d.priorityScores||[]).map(p => {
-    const color = p.score>=7?'var(--accent)':p.score>=5?'var(--gold)':'var(--warn)';
-    return `<div class="pr-row"><div class="pr-name">${p.priority}</div><div class="pr-bar"><div class="pr-fill" style="width:${p.score*10}%;background:${color};"></div></div><div class="pr-score" style="color:${color};">${p.score}/10</div></div>`;
-  }).join('');
-
-  const strengths = (d.strengths||[]).map(s=>`<span class="tag tag-g">${s}</span>`).join('');
-  const concerns  = (d.concerns||[]).map(c=>`<span class="tag tag-w">${c}</span>`).join('');
-  const integrations = (d.integrationsLikely||[]).map(i=>`<span class="tag tag-n">${i}</span>`).join('');
-  const similar = (d.similarVendors||[]).map(s=>`<span class="sim-chip" onclick="quickSearch('${s}')">${s}</span>`).join('');
-
-  document.getElementById('results-area').innerHTML = `
-    <div class="vendor-card">
-      <div class="vc-header">
-        <div style="flex:1;">
-          <div class="vc-name">${d.name}</div>
-          <div class="vc-tagline">${d.tagline||''}</div>
-          <div class="vc-badges">
-            <span class="badge badge-cat">${d.category||''}</span>
-            <span class="badge badge-stage">${d.stage||''}</span>
-            ${d.hipaaCompliant?'<span class="badge badge-hipaa">HIPAA ✓</span>':''}
-            ${d.hl7Fhir?'<span class="badge badge-hipaa">HL7/FHIR ✓</span>':''}
+function renderVendorCard(d){
+  lastVendorData=d;if(radarChart){radarChart.destroy();radarChart=null;}
+  const saved=watchlist.some(v=>v.name.toLowerCase()===d.name.toLowerCase());
+  const fitClass=d.fitScore>=7?'fit-high':d.fitScore>=5?'fit-med':'fit-low';
+  const matPct=(d.maturityScore||5)*10;
+  const pRows=(d.priorityScores||[]).map(p=>{const color=p.score>=7?'var(--accent)':p.score>=5?'var(--gold)':'var(--red)';return`<div class="pr-row"><div class="pr-top"><div class="pr-name">${p.priority}</div><div class="pr-bar"><div class="pr-fill" style="width:${p.score*10}%;background:${color};"></div></div><div class="pr-score" style="color:${color};">${p.score}/10</div></div>${p.rationale?`<div class="pr-rationale">${p.rationale}</div>`:''}</div>`;}).join('');
+  const flags=(d.redFlags||[]).map(f=>`<div class="rflag-item"><div class="rflag-dot"></div><div class="rflag-text">${f}</div></div>`).join('');
+  const s=(d.strengths||[]).map(x=>`<span class="tag tag-g">${x}</span>`).join('');
+  const c=(d.concerns||[]).map(x=>`<span class="tag tag-w">${x}</span>`).join('');
+  const ig=(d.integrationsLikely||[]).map(x=>`<span class="tag tag-n">${x}</span>`).join('');
+  const sm=(d.similarVendors||[]).map(x=>`<span class="sim-chip" onclick="qs('${x}')">${x}</span>`).join('');
+  const nk=d.name.replace(/\W/g,'_');const sn=notes[d.name]||'';const vr=ratings[d.name]||{up:0,down:0,mine:null};
+  document.getElementById('results-area').innerHTML=`
+  <div class="vendor-card">
+    <div class="vc-header">
+      <div class="vc-title-area">
+        <div class="vc-name">${d.name}</div>
+        <div class="vc-tagline">${d.tagline||''}</div>
+        <div class="vc-badges">
+          <span class="badge badge-cat">${d.category||''}</span>
+          <span class="badge badge-stage">${d.stage||''}</span>
+          ${d.hipaaCompliant?'<span class="badge badge-hipaa">HIPAA ✓</span>':''}
+          ${d.hl7Fhir?'<span class="badge badge-hipaa">HL7/FHIR ✓</span>':''}
+          ${(d.redFlags||[]).length?`<span class="badge badge-rflag">⚠ ${d.redFlags.length} Red Flag${d.redFlags.length>1?'s':''}</span>`:''}
+        </div>
+        <div class="mat-row">
+          <span class="mat-label">Maturity</span>
+          <div class="mat-bar"><div class="mat-fill" style="width:${matPct}%;"></div></div>
+          <span class="mat-val">${d.maturityLabel||'Unknown'}</span>
+        </div>
+      </div>
+      <div class="vc-score-area">
+        <div class="fit-ring ${fitClass}"><div class="fit-num">${d.fitScore}</div><div class="fit-label">/ 10</div></div>
+        <div class="fit-caption">Payer Fit</div>
+      </div>
+    </div>
+    <div class="vc-body">
+      <div class="vc-sec full"><div class="vc-sec-title">🎯 Core Use Case</div><p>${d.coreUseCase||''}</p></div>
+      <div class="vc-sec full"><div class="vc-sec-title">⚡ Key Differentiator</div><p>${d.differentiator||''}</p></div>
+      <div class="vc-sec"><div class="vc-sec-title">✅ Strengths</div><div class="tag-list">${s}</div></div>
+      <div class="vc-sec"><div class="vc-sec-title">⚠️ Watch Points</div><div class="tag-list">${c}</div></div>
+      ${flags?`<div class="vc-sec full"><div class="vc-sec-title">🚩 Red Flags</div>${flags}</div>`:''}
+      <div class="vc-sec"><div class="vc-sec-title">🏢 Maturity Assessment</div><p>${d.maturityAssessment||''}</p></div>
+      <div class="vc-sec"><div class="vc-sec-title">🔌 Likely Integrations</div><div class="tag-list">${ig}</div></div>
+      <div class="vc-sec"><div class="vc-sec-title">🏥 Payer Customers</div><p>${d.payerCustomers||'Not disclosed'}</p></div>
+      <div class="vc-sec"><div class="vc-sec-title">💰 Funding & Scale</div><p>${d.fundingNotes||'Not disclosed'}</p></div>
+      ${pRows?`<div class="vc-sec full"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;"><div><div class="vc-sec-title">📊 Priority Alignment (with rationale)</div>${pRows}</div><div><div class="vc-sec-title" style="margin-bottom:0.6rem;">📡 Fit Radar</div><div style="position:relative;height:210px;"><canvas id="radar-chart"></canvas></div></div></div></div>`:''}
+      <div class="vc-sec full"><div class="vc-sec-title">🏁 Payer Fit Summary</div><p>${d.fitRationale||''}</p></div>
+      <div class="vc-sec full">
+        <div class="vc-sec-title">📝 Your Notes</div>
+        <textarea class="notes-area" id="notes-${nk}" placeholder="Add internal context… e.g. 'Demoed Q1 2026 — strong clinical fit but pricing model unclear. Follow up with procurement team.'" onchange="saveNote('${d.name}')">${sn}</textarea>
+        <div class="notes-saved" id="ns-${nk}">✓ Saved</div>
+      </div>
+      <div class="vc-sec">
+        <div class="vc-sec-title">👥 Team Rating</div>
+        <div class="rating-row">
+          <button class="rating-btn${vr.mine==='up'?' active-up':''}" id="btn-up" onclick="rate('${d.name}','up')">👍 <span class="r-cnt" id="cnt-up">${vr.up}</span></button>
+          <button class="rating-btn${vr.mine==='down'?' active-down':''}" id="btn-down" onclick="rate('${d.name}','down')">👎 <span class="r-cnt" id="cnt-down">${vr.down}</span></button>
+        </div>
+      </div>
+      <div class="vc-sec">
+        <div class="vc-sec-title">💬 Ask a Question</div>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="chat-${nk}"></div>
+          <div class="chat-row">
+            <input class="chat-input" id="ci-${nk}" type="text" placeholder="e.g. Does this support value-based care contracts?" onkeydown="if(event.key==='Enter')askQ('${d.name}')"/>
+            <button class="btn-chat" id="cbtn" onclick="askQ('${d.name}')">Ask →</button>
           </div>
         </div>
-        <div style="text-align:center;flex-shrink:0;">
-          <div class="fit-ring ${fitClass}"><div class="fit-num">${d.fitScore}</div><div class="fit-label">/ 10</div></div>
-          <div class="fit-caption">Fit Score</div>
-        </div>
       </div>
-      <div class="vc-body">
-        <div class="vc-sec full"><div class="vc-sec-title">🎯 Core Use Case</div><p>${d.coreUseCase||''}</p></div>
-        <div class="vc-sec full"><div class="vc-sec-title">⚡ Key Differentiator</div><p>${d.differentiator||''}</p></div>
-        <div class="vc-sec"><div class="vc-sec-title">✅ Strengths</div><div class="tag-list">${strengths}</div></div>
-        <div class="vc-sec"><div class="vc-sec-title">⚠️ Watch Points</div><div class="tag-list">${concerns}</div></div>
-        <div class="vc-sec"><div class="vc-sec-title">🔌 Likely Integrations</div><div class="tag-list">${integrations}</div></div>
-        <div class="vc-sec"><div class="vc-sec-title">🏥 Known Payer Customers</div><p>${d.payerCustomers||'Not publicly disclosed'}</p></div>
-        <div class="vc-sec"><div class="vc-sec-title">👥 Target Customer</div><p>${d.targetCustomer||''}</p></div>
-        <div class="vc-sec"><div class="vc-sec-title">💰 Funding & Scale</div><p>${d.fundingNotes||'Not disclosed'}</p></div>
-        ${pRows?`<div class="vc-sec full"><div class="vc-sec-title">📊 Strategic Priority Alignment</div>${pRows}</div>`:''}
-        <div class="vc-sec full"><div class="vc-sec-title">🏁 Payer Fit Summary</div><p>${d.fitRationale||''}</p></div>
+    </div>
+    <div class="vc-footer">
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn-wl ${saved?'saved':''}" id="wl-main-btn" onclick="toggleWL()">${saved?'✓ Saved':'+ Save to Watchlist'}</button>
+        <button class="btn-share" onclick="shareVendor(lastVendorData)">🔗 Copy Link</button>
       </div>
-      <div class="vc-footer">
-        <button class="btn-wl ${saved?'saved':''}" id="wl-main-btn" onclick="toggleWatchlist()">${saved?'✓ Saved to Watchlist':'+ Add to Watchlist'}</button>
-        ${similar?`<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;"><span style="font-size:0.72rem;color:var(--ink3);">Compare with:</span>${similar}</div>`:''}
-      </div>
-    </div>`;
+      ${sm?`<div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;"><span style="font-size:0.68rem;color:var(--ink3);">Similar:</span>${sm}</div>`:''}
+    </div>
+  </div>`;
+  setTimeout(()=>drawRadar(d),80);
 }
 
-// ── Compare ──
-function renderCompare(d1, d2) {
-  const rows = [
-    {l:'Category',f:d=>d.category},{l:'Stage',f:d=>d.stage},
-    {l:'Target Customer',f:d=>d.targetCustomer},{l:'Core Use Case',f:d=>d.coreUseCase},
-    {l:'Differentiator',f:d=>d.differentiator},{l:'Strengths',f:d=>(d.strengths||[]).join(', ')},
-    {l:'Watch Points',f:d=>(d.concerns||[]).join(', ')},{l:'Integrations',f:d=>(d.integrationsLikely||[]).join(', ')},
-    {l:'HIPAA / FHIR',f:d=>`${d.hipaaCompliant?'HIPAA ✓':'HIPAA ?'} / ${d.hl7Fhir?'HL7/FHIR ✓':'HL7/FHIR ?'}`},
-    {l:'Payer Customers',f:d=>d.payerCustomers},{l:'Funding',f:d=>d.fundingNotes},
-    {l:'Fit Score',f:d=>`${d.fitScore}/10`},{l:'Payer Fit',f:d=>d.fitRationale},
-  ];
-  document.getElementById('results-area').innerHTML = `
-    <div class="compare-card">
-      <div class="cmp-header">
-        <div class="cmp-title">${d1.name} vs ${d2.name}</div>
-        <button class="btn-wl" style="font-size:0.75rem;padding:0.4rem 0.8rem;" onclick="addToWatchlist(currentVendors[0]);addToWatchlist(currentVendors[1]);">+ Save Both</button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="cmp-table">
-          <thead><tr><th>Dimension</th><th>${d1.name} <span style="font-family:'DM Mono',monospace;font-weight:400;">(${d1.fitScore}/10)</span></th><th>${d2.name} <span style="font-family:'DM Mono',monospace;font-weight:400;">(${d2.fitScore}/10)</span></th></tr></thead>
-          <tbody>${rows.map(r=>`<tr><td class="row-lbl">${r.l}</td><td>${r.f(d1)||'—'}</td><td>${r.f(d2)||'—'}</td></tr>`).join('')}</tbody>
-        </table>
-      </div>
-    </div>`;
+function drawRadar(d){
+  const canvas=document.getElementById('radar-chart');if(!canvas||!d.priorityScores?.length)return;
+  if(radarChart)radarChart.destroy();
+  radarChart=new Chart(canvas,{type:'radar',data:{labels:d.priorityScores.map(p=>p.priority.length>16?p.priority.slice(0,15)+'…':p.priority),datasets:[{label:d.name,data:d.priorityScores.map(p=>p.score),backgroundColor:'rgba(74,222,128,0.15)',borderColor:'rgba(74,222,128,0.8)',borderWidth:2,pointBackgroundColor:'#4ade80',pointBorderColor:'#0e0f0d',pointBorderWidth:2,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:10,grid:{color:'rgba(255,255,255,0.05)'},angleLines:{color:'rgba(255,255,255,0.07)'},ticks:{stepSize:2,color:'#5a574f',font:{size:9,family:'DM Mono'},backdropColor:'transparent'},pointLabels:{color:'#a8a49c',font:{size:10,family:'DM Sans'}}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`Score: ${ctx.raw}/10`}}}}});
 }
 
-// Init
-renderPriorities();
-renderWatchlist();
+function saveNote(name){const k=name.replace(/\W/g,'_');const el=document.getElementById('notes-'+k);if(!el)return;notes[name]=el.value;const s=document.getElementById('ns-'+k);if(s){s.style.opacity='1';setTimeout(()=>s.style.opacity='0',2000);}}
+
+function rate(name,dir){if(!ratings[name])ratings[name]={up:0,down:0,mine:null};const r=ratings[name];if(r.mine===dir){r[dir]--;r.mine=null;}else{if(r.mine)r[r.mine]--;r[dir]++;r.mine=dir;}const bu=document.getElementById('btn-up'),bd=document.getElementById('btn-down'),cu=document.getElementById('cnt-up'),cd=document.getElementById('cnt-down');if(bu)bu.className='rating-btn'+(r.mine==='up'?' active-up':'');if(bd)bd.className='rating-btn'+(r.mine==='down'?' active-down':'');if(cu)cu.textContent=r.up;if(cd)cd.textContent=r.down;}
+
+async function askQ(vendorName){
+  const nk=vendorName.replace(/\W/g,'_');const inp=document.getElementById('ci-'+nk);const msgs=document.getElementById('chat-'+nk);const btn=document.getElementById('cbtn');if(!inp||!msgs)return;const q=inp.value.trim();if(!q)return;inp.value='';btn.disabled=true;btn.textContent='…';
+  const um=document.createElement('div');um.className='chat-msg user';um.textContent=q;msgs.appendChild(um);msgs.scrollTop=msgs.scrollHeight;
+  const tm=document.createElement('div');tm.className='chat-msg ai';tm.textContent='Thinking…';msgs.appendChild(tm);msgs.scrollTop=msgs.scrollHeight;
+  try{const d=lastVendorData;const ctx=`Vendor: ${d.name}. Category: ${d.category}. Use case: ${d.coreUseCase}. Differentiator: ${d.differentiator}. Stage: ${d.stage}. HIPAA: ${d.hipaaCompliant}. FHIR: ${d.hl7Fhir}. Customers: ${d.payerCustomers}. Funding: ${d.fundingNotes}. Fit score: ${d.fitScore}/10.`;const data=await callAPI({model:"claude-sonnet-4-6",max_tokens:200,system:"You are a healthcare AI vendor analyst. Answer concisely in 1-3 sentences using only the vendor context provided.",messages:[{role:"user",content:`Context: ${ctx}\n\nQuestion: ${q}`}]});tm.textContent=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');}catch(e){tm.textContent='Could not get an answer. Please try again.';}
+  btn.disabled=false;btn.textContent='Ask →';msgs.scrollTop=msgs.scrollHeight;
+}
+
+function renderCompare(vendors){
+  const rows=[{l:'Category',f:d=>d.category},{l:'Stage',f:d=>d.stage},{l:'Maturity',f:d=>d.maturityLabel||'—'},{l:'Target Customer',f:d=>d.targetCustomer},{l:'Core Use Case',f:d=>d.coreUseCase},{l:'Differentiator',f:d=>d.differentiator},{l:'Strengths',f:d=>(d.strengths||[]).join(', ')},{l:'Watch Points',f:d=>(d.concerns||[]).join(', ')},{l:'Red Flags',f:d=>(d.redFlags||[]).join(' · ')||'None identified'},{l:'Integrations',f:d=>(d.integrationsLikely||[]).join(', ')},{l:'HIPAA / FHIR',f:d=>`${d.hipaaCompliant?'✓':'?'} / ${d.hl7Fhir?'✓':'?'}`},{l:'Payer Customers',f:d=>d.payerCustomers},{l:'Funding',f:d=>d.fundingNotes},{l:'Fit Score',f:d=>`${d.fitScore}/10`},{l:'Payer Fit',f:d=>d.fitRationale}];
+  const hc=vendors.map(d=>`<th>${d.name} <span style="font-weight:400;font-family:'DM Mono',monospace;font-size:0.62rem;">(${d.fitScore}/10)</span></th>`).join('');
+  const br=rows.map(r=>`<tr><td class="row-lbl">${r.l}</td>${vendors.map(d=>`<td>${r.f(d)||'—'}</td>`).join('')}</tr>`).join('');
+  document.getElementById('results-area').innerHTML=`<div class="cmp-card"><div class="cmp-hdr"><div class="cmp-title">${vendors.map(d=>d.name).join(' vs ')}</div><button class="btn-wl" style="font-size:0.72rem;padding:0.38rem 0.8rem;" onclick="currentVendors.forEach(v=>addToWatchlist(v));showToast('✓ All saved to watchlist')">+ Save All</button></div><div style="overflow-x:auto;"><table class="cmp-tbl"><thead><tr><th>Dimension</th>${hc}</tr></thead><tbody>${br}</tbody></table></div></div>`;
+}
+
+function renderDashboard(){
+  const grid=document.getElementById('dash-grid');
+  document.getElementById('dash-count').textContent=`${watchlist.length} vendor${watchlist.length!==1?'s':''} tracked`;
+  grid.innerHTML=watchlist.length?watchlist.map((v,i)=>{const fc=v.fitScore>=7?'fit-bh':v.fitScore>=5?'fit-bm':'fit-bl';return`<div class="dash-item" onclick="loadWL(${i})"><button class="dash-rm" onclick="event.stopPropagation();removeWL(${i})">✕</button><div class="dash-name">${v.name}</div><div class="dash-cat">${v.category||'Healthcare AI'}</div><div class="fit-b ${fc}">Fit ${v.fitScore}/10</div>${notes[v.name]?`<div style="font-size:0.62rem;color:var(--ink3);margin-top:0.38rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;">"${notes[v.name].slice(0,60)}${notes[v.name].length>60?'…':''}"</div>`:''}</div>`;}).join(''):'<div style="padding:2.5rem;font-size:0.81rem;color:var(--ink3);grid-column:1/-1;text-align:center;line-height:2;">No vendors yet.<br>Analyze and save vendors to build your portfolio.</div>';
+}
+
+function renderMap(){
+  const el=document.getElementById('map-dots');if(!el)return;el.innerHTML='';
+  const COLORS=['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c','#f472b6','#2dd4bf','#e879f9'];
+  if(!watchlist.length){el.innerHTML='<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.77rem;color:var(--ink3);text-align:center;line-height:1.8;">Save vendors to watchlist<br>to see them plotted here</div>';return;}
+  watchlist.forEach((v,i)=>{
+    const d=v.data;const cx=d.clinicalVsAdmin!=null?d.clinicalVsAdmin:0.5;const cy=d.maturityScore!=null?1-(d.maturityScore/10):0.5;
+    const jx=(Math.sin(i*137.5)*0.04),jy=(Math.cos(i*97.3)*0.04);
+    const px=Math.max(5,Math.min(90,(cx+jx)*100)),py=Math.max(6,Math.min(87,(cy+jy)*100));
+    const sz=24+(v.fitScore/10)*20;const color=COLORS[i%COLORS.length];
+    const dot=document.createElement('div');dot.className='map-dot';dot.style.cssText=`left:${px}%;top:${py}%;`;
+    dot.innerHTML=`<div class="dot-bubble" style="width:${sz}px;height:${sz}px;background:${color};font-size:${sz>40?'0.52rem':'0.48rem'};">${v.name.slice(0,2).toUpperCase()}</div><div class="dot-label">${v.name}</div>`;
+    dot.onclick=()=>loadWL(i);el.appendChild(dot);
+  });
+}
+
+renderPriorities();renderWatchlist();setView('analyze');
 </script>
 </body>
 </html>
