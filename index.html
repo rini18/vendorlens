@@ -64,6 +64,22 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
 .chip{font-size:0.68rem;padding:0.18rem 0.55rem;border:1px solid var(--border);border-radius:20px;background:var(--surface2);color:var(--ink3);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;}
 .chip:hover{background:var(--accent-dim);border-color:var(--accent-glow);color:var(--accent);}
 .add-vendor-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.45rem;}
+.criteria-wrap{position:relative;margin-bottom:0.75rem;}
+.criteria-btn{display:flex;align-items:center;gap:0.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:0.5rem 0.875rem;font-family:inherit;font-size:0.8rem;color:var(--ink2);cursor:pointer;width:100%;justify-content:space-between;transition:border-color 0.15s;}
+.criteria-btn:hover{border-color:var(--border2);}
+.criteria-btn.open{border-color:var(--accent2);}
+.criteria-lbl{font-size:0.63rem;font-family:'DM Mono',monospace;color:var(--ink3);margin-bottom:0.3rem;}
+.criteria-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-sm);box-shadow:var(--shadow-lg);z-index:100;max-height:320px;overflow-y:auto;padding:0.5rem;}
+.criteria-dropdown.hidden{display:none;}
+.crit-section{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink3);font-family:'DM Mono',monospace;padding:0.4rem 0.5rem 0.2rem;font-weight:600;}
+.crit-item{display:flex;align-items:center;gap:0.6rem;padding:0.38rem 0.5rem;border-radius:4px;cursor:pointer;transition:background 0.12s;}
+.crit-item:hover{background:var(--surface2);}
+.crit-item input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:pointer;flex-shrink:0;}
+.crit-item label{font-size:0.78rem;color:var(--ink2);cursor:pointer;flex:1;}
+.crit-custom{display:flex;gap:0.4rem;margin-top:0.5rem;padding:0.4rem 0.5rem;border-top:1px solid var(--border);}
+.crit-custom input{flex:1;padding:0.3rem 0.55rem;border:1px solid var(--border2);border-radius:4px;font-family:inherit;font-size:0.75rem;background:var(--surface2);color:var(--ink);outline:none;}
+.crit-custom input:focus{border-color:var(--accent2);}
+.crit-custom button{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);border-radius:4px;padding:0.3rem 0.6rem;font-size:0.73rem;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;}
 .btn-add-vendor{background:none;border:1px dashed var(--border2);border-radius:var(--r-sm);padding:0.28rem 0.7rem;font-size:0.73rem;color:var(--ink3);cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .btn-add-vendor:hover{border-color:var(--accent-glow);color:var(--accent);}
 .vc-count{font-size:0.68rem;color:var(--ink3);font-family:'DM Mono',monospace;}
@@ -220,6 +236,31 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
       <div class="search-card">
         <div class="search-hero">Vendor Intelligence</div>
         <div class="search-sub">Instant profiles, priority scoring, red flags, and comparison — built for healthcare payers.</div>
+        <div class="criteria-wrap">
+          <div class="criteria-lbl">Analysis Criteria</div>
+          <button type="button" class="criteria-btn" id="crit-btn" onclick="toggleCriteria()">
+            <span id="crit-summary">All criteria selected (8)</span>
+            <span id="crit-arrow" style="font-size:0.7rem;transition:transform 0.2s;">▼</span>
+          </button>
+          <div class="criteria-dropdown hidden" id="crit-dropdown">
+            <div class="crit-section">Clinical & Compliance</div>
+            <div class="crit-item"><input type="checkbox" id="c-hipaa" checked onchange="updateCritSummary()"><label for="c-hipaa">HIPAA / FHIR compliance</label></div>
+            <div class="crit-item"><input type="checkbox" id="c-clinical" checked onchange="updateCritSummary()"><label for="c-clinical">Clinical evidence & outcomes</label></div>
+            <div class="crit-item"><input type="checkbox" id="c-maturity" checked onchange="updateCritSummary()"><label for="c-maturity">Enterprise maturity & readiness</label></div>
+            <div class="crit-section">Commercial & Strategic</div>
+            <div class="crit-item"><input type="checkbox" id="c-payer" checked onchange="updateCritSummary()"><label for="c-payer">Payer customer track record</label></div>
+            <div class="crit-item"><input type="checkbox" id="c-roi" checked onchange="updateCritSummary()"><label for="c-roi">ROI & cost reduction potential</label></div>
+            <div class="crit-item"><input type="checkbox" id="c-integration" checked onchange="updateCritSummary()"><label for="c-integration">EHR & system integrations</label></div>
+            <div class="crit-section">Risk & Contracting</div>
+            <div class="crit-item"><input type="checkbox" id="c-redflag" checked onchange="updateCritSummary()"><label for="c-redflag">Red flags & contract risks</label></div>
+            <div class="crit-item"><input type="checkbox" id="c-funding" checked onchange="updateCritSummary()"><label for="c-funding">Funding stage & financial stability</label></div>
+            <div id="custom-crit-list"></div>
+            <div class="crit-custom">
+              <input type="text" id="custom-crit-input" placeholder="Add your own criteria…" maxlength="60" onkeydown="if(event.key==='Enter')addCustomCrit()"/>
+              <button type="button" onclick="addCustomCrit()">+ Add</button>
+            </div>
+          </div>
+        </div>
         <div class="mode-tabs">
           <button type="button" class="mode-tab active" id="mode-single" onclick="setMode('single')">Single / Compare</button>
           <button type="button" class="mode-tab" id="mode-bulk" onclick="setMode('bulk')">Bulk Analyze</button>
@@ -255,16 +296,17 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
               <span class="vc-count" id="vc-lbl"></span>
             </div>
           </div>
-          <div class="chips">
-            <span class="chip" onclick="qs('Twin Health')">Twin Health</span>
-            <span class="chip" onclick="qs('Pomelo Health')">Pomelo Health</span>
-            <span class="chip" onclick="qs('Interactly')">Interactly</span>
-            <span class="chip" onclick="qs('Counsel Health')">Counsel Health</span>
-            <span class="chip" onclick="qs('Parallel AI')">Parallel AI</span>
-            <span class="chip" onclick="qs('Abridge')">Abridge</span>
-            <span class="chip" onclick="qs('Nabla')">Nabla</span>
-            <span class="chip" onclick="qs('Innovaccer')">Innovaccer</span>
-          </div>
+        </div>
+        <div class="chips">
+          <span style="font-size:0.63rem;color:var(--ink3);font-family:'DM Mono',monospace;align-self:center;">Quick:</span>
+          <span class="chip" onclick="fillVendor1('Twin Health')">Twin Health</span>
+          <span class="chip" onclick="fillVendor1('Pomelo Health')">Pomelo Health</span>
+          <span class="chip" onclick="fillVendor1('Interactly')">Interactly</span>
+          <span class="chip" onclick="fillVendor1('Counsel Health')">Counsel Health</span>
+          <span class="chip" onclick="fillVendor1('Parallel AI')">Parallel AI</span>
+          <span class="chip" onclick="fillVendor1('Abridge')">Abridge</span>
+          <span class="chip" onclick="fillVendor1('Nabla')">Nabla</span>
+          <span class="chip" onclick="fillVendor1('Innovaccer')">Innovaccer</span>
         </div>
         <div id="panel-bulk" style="display:none;">
           <textarea class="bulk-area" id="bulk-input" placeholder="Paste up to 10 vendor names, one per line:&#10;Twin Health&#10;Pomelo Health&#10;Interactly&#10;Abridge"></textarea>
@@ -316,6 +358,69 @@ function toggleTheme(){
   document.getElementById('theme-btn').textContent=isLight?'🌙 Dark':'☀ Light';
 }
 
+// ── Criteria dropdown ──────────────────────────────
+let customCriteria=[];
+function toggleCriteria(){
+  const dd=document.getElementById('crit-dropdown');
+  const btn=document.getElementById('crit-btn');
+  const arr=document.getElementById('crit-arrow');
+  const isOpen=!dd.classList.contains('hidden');
+  dd.classList.toggle('hidden',isOpen);
+  btn.classList.toggle('open',!isOpen);
+  arr.style.transform=isOpen?'':'rotate(180deg)';
+}
+// Close dropdown when clicking outside
+document.addEventListener('click',function(e){
+  const wrap=document.getElementById('crit-dropdown');
+  const btn=document.getElementById('crit-btn');
+  if(wrap&&btn&&!wrap.contains(e.target)&&!btn.contains(e.target)){
+    wrap.classList.add('hidden');
+    btn.classList.remove('open');
+    document.getElementById('crit-arrow').style.transform='';
+  }
+});
+function updateCritSummary(){
+  const all=document.querySelectorAll('#crit-dropdown input[type=checkbox]');
+  const checked=[...all].filter(c=>c.checked);
+  const total=all.length;
+  const el=document.getElementById('crit-summary');
+  if(checked.length===0)el.textContent='No criteria selected';
+  else if(checked.length===total)el.textContent=`All criteria selected (${total})`;
+  else el.textContent=`${checked.length} of ${total} criteria selected`;
+}
+function addCustomCrit(){
+  const inp=document.getElementById('custom-crit-input');
+  const val=inp.value.trim();if(!val)return;
+  const id='cc-'+Date.now();
+  customCriteria.push({id,label:val});
+  const list=document.getElementById('custom-crit-list');
+  const div=document.createElement('div');div.className='crit-item';div.id='row-'+id;
+  div.innerHTML=`<input type="checkbox" id="${id}" checked onchange="updateCritSummary()"><label for="${id}">${val}</label><button type="button" onclick="removeCustomCrit('${id}')" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:0.75rem;margin-left:auto;">✕</button>`;
+  list.appendChild(div);
+  inp.value='';updateCritSummary();
+}
+function removeCustomCrit(id){
+  document.getElementById('row-'+id)?.remove();
+  customCriteria=customCriteria.filter(c=>c.id!==id);
+  updateCritSummary();
+}
+function getActiveCriteria(){
+  const base=[
+    {id:'c-hipaa',label:'HIPAA/FHIR compliance'},
+    {id:'c-clinical',label:'clinical evidence and outcomes'},
+    {id:'c-maturity',label:'enterprise maturity and readiness'},
+    {id:'c-payer',label:'payer customer track record'},
+    {id:'c-roi',label:'ROI and cost reduction potential'},
+    {id:'c-integration',label:'EHR and system integrations'},
+    {id:'c-redflag',label:'red flags and contract risks'},
+    {id:'c-funding',label:'funding stage and financial stability'},
+  ];
+  const active=base.filter(b=>document.getElementById(b.id)?.checked).map(b=>b.label);
+  customCriteria.forEach(c=>{if(document.getElementById(c.id)?.checked)active.push(c.label);});
+  return active;
+}
+// ── End criteria ────────────────────────────────────
+
 async function callAPI(payload){
   let k=sessionStorage.getItem('vl_key');
   if(!k){k=prompt('Enter your Anthropic API key:\n(Stored for this session only)');if(!k)throw new Error('API key required');sessionStorage.setItem('vl_key',k);}
@@ -326,7 +431,9 @@ async function callAPI(payload){
 
 function buildPayload(name){
   const pList=priorities.length?priorities.map((p,i)=>`${i+1}. ${p}`).join('\n'):'1. Reduce costs\n2. Improve outcomes';
-  return{model:"claude-sonnet-4-6",max_tokens:1500,system:"You are a healthcare AI vendor intelligence analyst for a payer. Respond ONLY with valid raw JSON. No markdown, no backticks.",messages:[{role:"user",content:`Analyze healthcare AI vendor "${name}" for a health insurance payer.\n\nStrategic priorities:\n${pList}\n\nReturn ONLY this JSON (no markdown):\n{"name":"Official name","tagline":"One sentence","category":"e.g. Chronic Care Management","targetCustomer":"Payers/Providers/Patients","stage":"e.g. Series B","hipaaCompliant":true,"hl7Fhir":true,"coreUseCase":"2-3 sentences","differentiator":"2-3 sentences","strengths":["s1","s2","s3"],"concerns":["c1","c2"],"redFlags":["specific risk: brief explanation"],"integrationsLikely":["Epic"],"priorityScores":[{"priority":"label max 35 chars","score":8,"rationale":"one sentence why this score"}],"fitScore":7,"fitRationale":"2 sentences","maturityScore":7,"maturityLabel":"Enterprise Ready","maturityAssessment":"1-2 sentences on enterprise readiness","clinicalVsAdmin":0.3,"similarVendors":["A","B"],"fundingNotes":"Brief","payerCustomers":"Known or Not publicly disclosed"}\n\nclinicalVsAdmin: 0.0=pure clinical, 1.0=pure admin. maturityScore/fitScore: integers 1-10.`}]};
+  const cList=getActiveCriteria();
+  const criteriaNote=cList.length?`\n\nFocus your analysis on these criteria: ${cList.join(', ')}.`:'';
+  return{model:"claude-sonnet-4-6",max_tokens:1500,system:"You are a healthcare AI vendor intelligence analyst for a payer. Respond ONLY with valid raw JSON. No markdown, no backticks.",messages:[{role:"user",content:`Analyze healthcare AI vendor "${name}" for a health insurance payer.\n\nStrategic priorities:\n${pList}\n\nReturn ONLY this JSON (no markdown):\n{"name":"Official name","tagline":"One sentence","category":"e.g. Chronic Care Management","targetCustomer":"Payers/Providers/Patients","stage":"e.g. Series B","hipaaCompliant":true,"hl7Fhir":true,"coreUseCase":"2-3 sentences","differentiator":"2-3 sentences","strengths":["s1","s2","s3"],"concerns":["c1","c2"],"redFlags":["specific risk: brief explanation"],"integrationsLikely":["Epic"],"priorityScores":[{"priority":"label max 35 chars","score":8,"rationale":"one sentence why this score"}],"fitScore":7,"fitRationale":"2 sentences","maturityScore":7,"maturityLabel":"Enterprise Ready","maturityAssessment":"1-2 sentences on enterprise readiness","clinicalVsAdmin":0.3,"similarVendors":["A","B"],"fundingNotes":"Brief","payerCustomers":"Known or Not publicly disclosed"}\n\nclinicalVsAdmin: 0.0=pure clinical, 1.0=pure admin. maturityScore/fitScore: integers 1-10.${criteriaNote}`}]};
 }
 
 function parseVendor(data){const t=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error('Could not parse response');return JSON.parse(m[0]);}
@@ -388,6 +495,10 @@ function updateVCLabel(){
   let visible=1;
   for(let i=2;i<=4;i++){const r=document.getElementById('vrow'+i);if(r&&r.style.display!=='none')visible++;}
   document.getElementById('vc-lbl').textContent=visible>1?visible+' vendors':'';
+}
+function fillVendor1(name){
+  document.getElementById('vf1').value=name;
+  document.getElementById('vf1').focus();
 }
 function qs(name){
   document.getElementById('vf1').value=name;
