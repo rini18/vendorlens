@@ -272,24 +272,24 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
         <div id="panel-single">
           <div style="display:flex;flex-direction:column;gap:0.5rem;">
             <div style="display:flex;gap:0.5rem;">
-              <textarea id="vf1" rows="1" placeholder="Vendor 1 — Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter'){event.preventDefault();runAnalysis();}" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+              <textarea id="vf1" rows="1" onfocus="document.getElementById('panel-single').dataset.lastFocus='vf1';this.style.borderColor='var(--accent2)'" placeholder="Vendor 1 — Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter'){event.preventDefault();runAnalysis();}" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
               <button type="button" class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
             </div>
             <div id="vrow2" style="display:none;">
               <div style="display:flex;gap:0.5rem;">
-                <textarea id="vf2" rows="1" placeholder="Vendor 2 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                <textarea id="vf2" rows="1" onfocus="document.getElementById('panel-single').dataset.lastFocus='vf2';this.style.borderColor='var(--accent2)'" placeholder="Vendor 2 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
                 <button type="button" onclick="hideVRow(2)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;align-self:center;">✕</button>
               </div>
             </div>
             <div id="vrow3" style="display:none;">
               <div style="display:flex;gap:0.5rem;">
-                <textarea id="vf3" rows="1" placeholder="Vendor 3 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                <textarea id="vf3" rows="1" onfocus="document.getElementById('panel-single').dataset.lastFocus='vf3';this.style.borderColor='var(--accent2)'" placeholder="Vendor 3 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
                 <button type="button" onclick="hideVRow(3)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;align-self:center;">✕</button>
               </div>
             </div>
             <div id="vrow4" style="display:none;">
               <div style="display:flex;gap:0.5rem;">
-                <textarea id="vf4" rows="1" placeholder="Vendor 4 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                <textarea id="vf4" rows="1" onfocus="document.getElementById('panel-single').dataset.lastFocus='vf4';this.style.borderColor='var(--accent2)'" placeholder="Vendor 4 — Company name…" style="flex:1;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;resize:none;overflow:hidden;line-height:1.4;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"></textarea>
                 <button type="button" onclick="hideVRow(4)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;align-self:center;">✕</button>
               </div>
             </div>
@@ -511,7 +511,15 @@ function updateVCLabel(){
   document.getElementById('vc-lbl').textContent=visible>1?visible+' vendors':'';
 }
 function fillVendor1(name){
-  const el=document.getElementById('vf1');el.value=name;el.focus();
+  // Fill whichever vendor field was last focused, or the first empty visible one
+  // Track last focused field via data attribute on the panel
+  const lastId=document.getElementById('panel-single').dataset.lastFocus||'vf1';
+  const target=document.getElementById(lastId);
+  if(target&&target.offsetParent!==null){
+    target.value=name;target.focus();
+  } else {
+    document.getElementById('vf1').value=name;document.getElementById('vf1').focus();
+  }
 }
 function qs(name){
   document.getElementById('vf1').value=name;
