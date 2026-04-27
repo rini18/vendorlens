@@ -54,6 +54,9 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
 .mode-tab.active{background:var(--accent-dim);border-color:var(--accent-glow);color:var(--accent);}
 .mode-tab:hover:not(.active){background:var(--surface3);color:var(--ink);}
 .sinput{width:100%;padding:0.68rem 1rem;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:0.87rem;background:var(--surface2);color:var(--ink);outline:none;transition:border-color 0.15s;}
+.vce:focus{border-color:var(--accent2);}
+.vce:empty:before{content:attr(data-ph);color:var(--ink3);pointer-events:none;}
+.vce{white-space:nowrap;overflow:hidden;line-height:1.4;}
 .sinput:focus{border-color:var(--accent2);}.sinput::placeholder{color:var(--ink3);}
 .inputs-row{display:flex;gap:0.5rem;}
 .btn-analyze{background:var(--accent);color:#0e0f0d;border:none;border-radius:var(--r-sm);padding:0.68rem 1.35rem;font-size:0.87rem;cursor:pointer;font-weight:700;font-family:inherit;white-space:nowrap;transition:all 0.15s;}
@@ -243,6 +246,10 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
             <span id="crit-arrow" style="font-size:0.7rem;transition:transform 0.2s;">▼</span>
           </button>
           <div class="criteria-dropdown hidden" id="crit-dropdown">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.35rem 0.5rem 0.4rem;border-bottom:1px solid var(--border);margin-bottom:0.3rem;">
+              <span style="font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;">All Criteria</span>
+              <button type="button" id="sel-all-btn" onclick="toggleSelectAll()" style="background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);border-radius:4px;padding:0.18rem 0.6rem;font-size:0.7rem;font-family:inherit;font-weight:600;cursor:pointer;">Deselect All</button>
+            </div>
             <div class="crit-section">Clinical & Compliance</div>
             <div class="crit-item"><input type="checkbox" id="c-hipaa" checked onchange="updateCritSummary()"><label for="c-hipaa">HIPAA / FHIR compliance</label></div>
             <div class="crit-item"><input type="checkbox" id="c-clinical" checked onchange="updateCritSummary()"><label for="c-clinical">Clinical evidence & outcomes</label></div>
@@ -267,28 +274,26 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
         </div>
         <div id="panel-single">
           <div style="display:flex;flex-direction:column;gap:0.45rem;">
-            <!-- Row 1: always visible -->
             <div class="inputs-row">
-              <input class="sinput" id="vf1" type="text" autocomplete="new-password" placeholder="Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter')runAnalysis()" style="flex:1;width:auto;"/>
+              <div class="sinput vce" id="vf1" contenteditable="true" spellcheck="false" data-ph="Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter'){event.preventDefault();runAnalysis();}" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
               <button type="button" class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
             </div>
-            <!-- Rows 2-4: pre-rendered, hidden until needed -->
             <div id="vrow2" style="display:none;margin-top:0.45rem;">
               <div style="display:flex;gap:0.5rem;align-items:center;">
-                <input class="sinput" id="vf2" type="text" autocomplete="new-password" placeholder="Vendor 2 name…" style="flex:1;width:auto;"/>
-                <button type="button" onclick="hideVRow(2)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;">✕</button>
+                <div class="sinput vce" id="vf2" contenteditable="true" spellcheck="false" data-ph="Vendor 2 name…" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
+                <button type="button" onclick="hideVRow(2)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;">✕</button>
               </div>
             </div>
             <div id="vrow3" style="display:none;margin-top:0.45rem;">
               <div style="display:flex;gap:0.5rem;align-items:center;">
-                <input class="sinput" id="vf3" type="text" autocomplete="new-password" placeholder="Vendor 3 name…" style="flex:1;width:auto;"/>
-                <button type="button" onclick="hideVRow(3)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;">✕</button>
+                <div class="sinput vce" id="vf3" contenteditable="true" spellcheck="false" data-ph="Vendor 3 name…" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
+                <button type="button" onclick="hideVRow(3)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;">✕</button>
               </div>
             </div>
             <div id="vrow4" style="display:none;margin-top:0.45rem;">
               <div style="display:flex;gap:0.5rem;align-items:center;">
-                <input class="sinput" id="vf4" type="text" autocomplete="new-password" placeholder="Vendor 4 name…" style="flex:1;width:auto;"/>
-                <button type="button" onclick="hideVRow(4)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;">✕</button>
+                <div class="sinput vce" id="vf4" contenteditable="true" spellcheck="false" data-ph="Vendor 4 name…" style="flex:1;width:auto;min-height:1.4em;cursor:text;"></div>
+                <button type="button" onclick="hideVRow(4)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;flex-shrink:0;">✕</button>
               </div>
             </div>
             <div class="add-vendor-row">
@@ -360,6 +365,13 @@ function toggleTheme(){
 
 // ── Criteria dropdown ──────────────────────────────
 let customCriteria=[];
+function toggleSelectAll(){
+  const boxes=document.querySelectorAll('#crit-dropdown input[type=checkbox]');
+  const anyUnchecked=[...boxes].some(b=>!b.checked);
+  boxes.forEach(b=>b.checked=anyUnchecked);
+  document.getElementById('sel-all-btn').textContent=anyUnchecked?'Deselect All':'Select All';
+  updateCritSummary();
+}
 function toggleCriteria(){
   const dd=document.getElementById('crit-dropdown');
   const btn=document.getElementById('crit-btn');
@@ -387,6 +399,8 @@ function updateCritSummary(){
   if(checked.length===0)el.textContent='No criteria selected';
   else if(checked.length===total)el.textContent=`All criteria selected (${total})`;
   else el.textContent=`${checked.length} of ${total} criteria selected`;
+  const btn=document.getElementById('sel-all-btn');
+  if(btn)btn.textContent=checked.length===total?'Deselect All':'Select All';
 }
 function addCustomCrit(){
   const inp=document.getElementById('custom-crit-input');
@@ -477,7 +491,7 @@ function showNextVRow(){
     const row=document.getElementById('vrow'+i);
     if(row&&row.style.display==='none'){
       row.style.display='block';
-      document.getElementById('vf'+i).value='';
+      document.getElementById('vf'+i).textContent='';
       updateVCLabel();
       if(i===4)document.getElementById('add-vendor-btn').style.display='none';
       return;
@@ -487,7 +501,7 @@ function showNextVRow(){
 }
 function hideVRow(n){
   const row=document.getElementById('vrow'+n);
-  if(row){row.style.display='none';document.getElementById('vf'+n).value='';}
+  if(row){row.style.display='none';document.getElementById('vf'+n).textContent='';}
   document.getElementById('add-vendor-btn').style.display='';
   updateVCLabel();
 }
@@ -497,11 +511,12 @@ function updateVCLabel(){
   document.getElementById('vc-lbl').textContent=visible>1?visible+' vendors':'';
 }
 function fillVendor1(name){
-  document.getElementById('vf1').value=name;
-  document.getElementById('vf1').focus();
+  const el=document.getElementById('vf1');el.textContent=name;
+  // move cursor to end
+  const range=document.createRange();const sel=window.getSelection();range.selectNodeContents(el);range.collapse(false);sel.removeAllRanges();sel.addRange(range);el.focus();
 }
 function qs(name){
-  document.getElementById('vf1').value=name;
+  document.getElementById('vf1').textContent=name;
   for(let i=2;i<=4;i++)hideVRow(i);
   document.getElementById('add-vendor-btn').style.display='';
   updateVCLabel();setMode('single');runAnalysis();
@@ -513,12 +528,12 @@ function shareVendor(d){const url=`${location.origin}${location.pathname}?v=${en
 function showLoading(names){const steps=['Generating vendor intelligence…','Scoring against your priorities…','Detecting red flags & maturity…','Building vendor card…'];let si=0;document.getElementById('results-area').innerHTML=`<div class="loading-card"><div class="spinner"></div><div class="loading-text">Analyzing ${names}…</div><div class="loading-step" id="lstep">${steps[0]}</div></div>`;const t=setInterval(()=>{si=(si+1)%steps.length;const el=document.getElementById('lstep');if(el)el.textContent=steps[si];else clearInterval(t);},2000);}
 
 async function runAnalysis(){
-  const v1=document.getElementById('vf1').value.trim();if(!v1){document.getElementById('vf1').focus();return;}
+  const v1=document.getElementById('vf1').textContent.trim();if(!v1){document.getElementById('vf1').focus();return;}
   const vendors=[v1];
   for(let i=2;i<=4;i++){
     const row=document.getElementById('vrow'+i);
     const el=document.getElementById('vf'+i);
-    if(row&&row.style.display!=='none'&&el&&el.value.trim())vendors.push(el.value.trim());
+    if(row&&row.style.display!=='none'&&el&&el.textContent.trim())vendors.push(el.textContent.trim());
   }
   const btn=document.getElementById('analyze-btn');btn.disabled=true;btn.textContent='Analyzing…';
   showLoading(vendors.join(', '));
