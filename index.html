@@ -227,7 +227,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
         <div id="panel-single">
           <div style="display:flex;flex-direction:column;gap:0.45rem;">
             <div class="inputs-row">
-              <input class="sinput" id="vendor1" type="text" placeholder="Company name (e.g. Twin Health)"/>
+              <input class="sinput" id="vendor1" name="vl-vendor1" type="text" autocomplete="off" placeholder="Company name (e.g. Twin Health)"/>
               <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
             </div>
             <div id="extra-vendors"></div>
@@ -345,16 +345,17 @@ function setMode(m){
   document.getElementById('panel-bulk').style.display=m==='bulk'?'block':'none';
 }
 
-let slotSeq=10;// ever-increasing slot IDs so they never collide
+let slotSeq=10;
 function addVI(){
   const existing=document.querySelectorAll('#extra-vendors .vi-row');
   if(existing.length>=3){showToast('Maximum 4 vendors');return;}
   slotSeq++;const sid=slotSeq;
+  const num=existing.length+2;
   const d=document.createElement('div');d.className='vi-row';d.dataset.slot=sid;d.style.cssText='display:flex;gap:0.5rem;margin-top:0.45rem;';
-  d.innerHTML=`<input class="sinput" id="vs-${sid}" type="text" placeholder="Vendor name…" style="flex:1;"/><button onclick="removeVI(${sid})" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;line-height:1;padding:0 0.4rem;">✕</button>`;
-  document.getElementById('extra-vendors').appendChild(d);updateVCLabel();
-  // Focus the new input
-  setTimeout(()=>document.getElementById('vs-'+sid)?.focus(),50);
+  // autocomplete=off + unique name stops browser from suggesting vendor 1 value into vendor 2 field
+  d.innerHTML=`<input class="sinput" id="vs-${sid}" name="vl-slot-${sid}" type="text" autocomplete="off" placeholder="Vendor ${num} name…" style="flex:1;"/><button onclick="removeVI(${sid})" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;line-height:1;padding:0 0.4rem;">✕</button>`;
+  document.getElementById('extra-vendors').appendChild(d);
+  updateVCLabel();
 }
 function removeVI(sid){
   const row=document.querySelector(`.vi-row[data-slot="${sid}"]`);if(row)row.remove();updateVCLabel();
