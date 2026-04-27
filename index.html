@@ -8,6 +8,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{--bg:#0e0f0d;--surface:#161714;--surface2:#1e1f1c;--surface3:#252621;--border:#2a2b27;--border2:#333430;--ink:#f0ede6;--ink2:#a8a49c;--ink3:#5a574f;--accent:#4ade80;--accent2:#22c55e;--accent-dim:rgba(74,222,128,0.12);--accent-glow:rgba(74,222,128,0.25);--warn:#fb923c;--warn-dim:rgba(251,146,60,0.12);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.12);--red:#f87171;--red-dim:rgba(248,113,113,0.12);--blue:#60a5fa;--blue-dim:rgba(96,165,250,0.12);--r:10px;--r-sm:6px;--shadow:0 2px 12px rgba(0,0,0,0.4);--shadow-lg:0 8px 40px rgba(0,0,0,0.6);}
+body.light{--bg:#f5f4f0;--surface:#ffffff;--surface2:#f0ede8;--surface3:#e8e5df;--border:#ddd9d0;--border2:#ccc8be;--ink:#1a1a18;--ink2:#4a4740;--ink3:#8a8680;--shadow:0 2px 12px rgba(0,0,0,0.08);--shadow-lg:0 8px 40px rgba(0,0,0,0.14);}
+body.light header{background:rgba(245,244,240,0.95);}
+body.light ::-webkit-scrollbar-track{background:var(--bg);}
+body.light ::-webkit-scrollbar-thumb{background:var(--border2);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;}
 ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
@@ -186,6 +190,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
   <div class="logo">Vendor<em>Lens</em></div>
   <div class="header-right">
     <span class="header-badge">Healthcare AI Intelligence</span>
+    <button id="theme-btn" onclick="toggleTheme()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:0.22rem 0.75rem;font-size:0.68rem;font-family:'DM Mono',monospace;color:var(--ink3);cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;">☀ Light</button>
     <span class="header-url">rini18.github.io/vendorlens</span>
   </div>
 </header>
@@ -285,7 +290,12 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
 </div>
 <script>
 let priorities=["Reduce prior authorization turnaround time","Improve member engagement & retention","Automate clinical documentation","Support chronic care management programs"];
-let watchlist=[],currentVendors=[],lastVendorData=null,vendorCount=1,radarChart=null,notes={},ratings={};
+let watchlist=[],currentVendors=[],lastVendorData=null,radarChart=null,notes={},ratings={};
+
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent=isLight?'🌙 Dark':'☀ Light';
+}
 
 async function callAPI(payload){
   let k=sessionStorage.getItem('vl_key');
@@ -335,9 +345,29 @@ function setMode(m){
   document.getElementById('panel-bulk').style.display=m==='bulk'?'block':'none';
 }
 
-function addVI(){if(vendorCount>=4){showToast('Maximum 4 vendors');return;}vendorCount++;const d=document.createElement('div');d.style.cssText='display:flex;gap:0.5rem;margin-top:0.45rem;';d.innerHTML=`<input class="sinput" id="vendor${vendorCount}" type="text" placeholder="Vendor ${vendorCount}…" style="flex:1;"/><button onclick="removeVI(${vendorCount},this)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1rem;padding:0 0.4rem;">✕</button>`;document.getElementById('extra-vendors').appendChild(d);document.getElementById('vc-lbl').textContent=`${vendorCount} vendors`;}
-function removeVI(n,btn){btn.parentElement.remove();vendorCount--;document.getElementById('vc-lbl').textContent=vendorCount>1?`${vendorCount} vendors`:'';;}
-function qs(name){document.getElementById('vendor1').value=name;document.getElementById('extra-vendors').innerHTML='';vendorCount=1;document.getElementById('vc-lbl').textContent='';setMode('single');runAnalysis();}
+let slotSeq=10;// ever-increasing slot IDs so they never collide
+function addVI(){
+  const existing=document.querySelectorAll('#extra-vendors .vi-row');
+  if(existing.length>=3){showToast('Maximum 4 vendors');return;}
+  slotSeq++;const sid=slotSeq;
+  const d=document.createElement('div');d.className='vi-row';d.dataset.slot=sid;d.style.cssText='display:flex;gap:0.5rem;margin-top:0.45rem;';
+  d.innerHTML=`<input class="sinput" id="vs-${sid}" type="text" placeholder="Vendor name…" style="flex:1;"/><button onclick="removeVI(${sid})" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;line-height:1;padding:0 0.4rem;">✕</button>`;
+  document.getElementById('extra-vendors').appendChild(d);updateVCLabel();
+  // Focus the new input
+  setTimeout(()=>document.getElementById('vs-'+sid)?.focus(),50);
+}
+function removeVI(sid){
+  const row=document.querySelector(`.vi-row[data-slot="${sid}"]`);if(row)row.remove();updateVCLabel();
+}
+function updateVCLabel(){
+  const n=1+document.querySelectorAll('#extra-vendors .vi-row').length;
+  document.getElementById('vc-lbl').textContent=n>1?`${n} vendors`:'';
+}
+function qs(name){
+  document.getElementById('vendor1').value=name;
+  document.getElementById('extra-vendors').innerHTML='';
+  updateVCLabel();setMode('single');runAnalysis();
+}
 
 function showToast(msg,dur=2500){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},dur);}
 function shareVendor(d){const url=`${location.origin}${location.pathname}?v=${encodeURIComponent(d.name)}`;navigator.clipboard.writeText(url).then(()=>showToast('📋 Link copied to clipboard!'));}
@@ -346,7 +376,11 @@ function showLoading(names){const steps=['Generating vendor intelligence…','Sc
 
 async function runAnalysis(){
   const v1=document.getElementById('vendor1').value.trim();if(!v1){document.getElementById('vendor1').focus();return;}
-  const vendors=[v1];for(let i=2;i<=4;i++){const el=document.getElementById('vendor'+i);if(el&&el.value.trim())vendors.push(el.value.trim());}
+  const vendors=[v1];
+  document.querySelectorAll('#extra-vendors .vi-row').forEach(row=>{
+    const sid=row.dataset.slot;const el=document.getElementById('vs-'+sid);
+    if(el&&el.value.trim())vendors.push(el.value.trim());
+  });
   const btn=document.getElementById('analyze-btn');btn.disabled=true;btn.textContent='Analyzing…';
   showLoading(vendors.join(', '));
   try{
