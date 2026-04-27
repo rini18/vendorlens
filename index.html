@@ -221,18 +221,18 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
         <div class="search-hero">Vendor Intelligence</div>
         <div class="search-sub">Instant profiles, priority scoring, red flags, and comparison — built for healthcare payers.</div>
         <div class="mode-tabs">
-          <button class="mode-tab active" id="mode-single" onclick="setMode('single')">Single / Compare</button>
-          <button class="mode-tab" id="mode-bulk" onclick="setMode('bulk')">Bulk Analyze</button>
+          <button type="button" class="mode-tab active" id="mode-single" onclick="setMode('single')">Single / Compare</button>
+          <button type="button" class="mode-tab" id="mode-bulk" onclick="setMode('bulk')">Bulk Analyze</button>
         </div>
         <div id="panel-single">
           <div style="display:flex;flex-direction:column;gap:0.45rem;">
             <div class="inputs-row">
-              <input class="sinput" id="vendor1" name="vl-vendor1" type="text" autocomplete="off" placeholder="Company name (e.g. Twin Health)"/>
-              <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
+              <input class="sinput" id="vendor1" name="vl-vendor1" type="text" autocomplete="off" placeholder="Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter')runAnalysis()"/>
+              <button type="button" class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
             </div>
             <div id="extra-vendors"></div>
             <div class="add-vendor-row">
-              <button class="btn-add-vendor" onclick="addVI()">+ Add vendor to compare</button>
+              <button type="button" class="btn-add-vendor" onclick="addVI()">+ Add vendor to compare</button>
               <span class="vc-count" id="vc-lbl"></span>
             </div>
           </div>
@@ -353,7 +353,7 @@ function addVI(){
   const num=existing.length+2;
   const d=document.createElement('div');d.className='vi-row';d.dataset.slot=sid;d.style.cssText='display:flex;gap:0.5rem;margin-top:0.45rem;';
   // autocomplete=off + unique name stops browser from suggesting vendor 1 value into vendor 2 field
-  d.innerHTML=`<input class="sinput" id="vs-${sid}" name="vl-slot-${sid}" type="text" autocomplete="off" placeholder="Vendor ${num} name…" style="flex:1;"/><button onclick="removeVI(${sid})" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;line-height:1;padding:0 0.4rem;">✕</button>`;
+  d.innerHTML=`<input class="sinput" id="vs-${sid}" name="vl-slot-${sid}" type="text" autocomplete="off" placeholder="Vendor ${num} name…" style="flex:1;"/><button type="button" onclick="removeVI(${sid})" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;line-height:1;padding:0 0.4rem;">✕</button>`;
   document.getElementById('extra-vendors').appendChild(d);
   updateVCLabel();
 }
