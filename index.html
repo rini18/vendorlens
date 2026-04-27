@@ -226,13 +226,32 @@ header{position:sticky;top:0;z-index:200;background:rgba(14,15,13,0.92);backdrop
         </div>
         <div id="panel-single">
           <div style="display:flex;flex-direction:column;gap:0.45rem;">
+            <!-- Row 1: always visible -->
             <div class="inputs-row">
-              <input class="sinput" id="vendor1" name="vl-vendor1" type="text" autocomplete="off" placeholder="Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter')runAnalysis()"/>
+              <input class="sinput" id="vf1" type="text" autocomplete="new-password" placeholder="Company name (e.g. Twin Health)" onkeydown="if(event.key==='Enter')runAnalysis()"/>
               <button type="button" class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze →</button>
             </div>
-            <div id="extra-vendors"></div>
+            <!-- Rows 2-4: pre-rendered, hidden until needed -->
+            <div id="vrow2" style="display:none;">
+              <div style="display:flex;gap:0.5rem;align-items:center;">
+                <input class="sinput" id="vf2" type="text" autocomplete="new-password" placeholder="Vendor 2 name…"/>
+                <button type="button" onclick="hideVRow(2)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;">✕</button>
+              </div>
+            </div>
+            <div id="vrow3" style="display:none;">
+              <div style="display:flex;gap:0.5rem;align-items:center;">
+                <input class="sinput" id="vf3" type="text" autocomplete="new-password" placeholder="Vendor 3 name…"/>
+                <button type="button" onclick="hideVRow(3)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;">✕</button>
+              </div>
+            </div>
+            <div id="vrow4" style="display:none;">
+              <div style="display:flex;gap:0.5rem;align-items:center;">
+                <input class="sinput" id="vf4" type="text" autocomplete="new-password" placeholder="Vendor 4 name…"/>
+                <button type="button" onclick="hideVRow(4)" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;padding:0 0.4rem;">✕</button>
+              </div>
+            </div>
             <div class="add-vendor-row">
-              <button type="button" class="btn-add-vendor" onclick="addVI()">+ Add vendor to compare</button>
+              <button type="button" class="btn-add-vendor" id="add-vendor-btn" onclick="showNextVRow()">+ Add vendor to compare</button>
               <span class="vc-count" id="vc-lbl"></span>
             </div>
           </div>
@@ -345,28 +364,35 @@ function setMode(m){
   document.getElementById('panel-bulk').style.display=m==='bulk'?'block':'none';
 }
 
-let slotSeq=10;
-function addVI(){
-  const existing=document.querySelectorAll('#extra-vendors .vi-row');
-  if(existing.length>=3){showToast('Maximum 4 vendors');return;}
-  slotSeq++;const sid=slotSeq;
-  const num=existing.length+2;
-  const d=document.createElement('div');d.className='vi-row';d.dataset.slot=sid;d.style.cssText='display:flex;gap:0.5rem;margin-top:0.45rem;';
-  // autocomplete=off + unique name stops browser from suggesting vendor 1 value into vendor 2 field
-  d.innerHTML=`<input class="sinput" id="vs-${sid}" name="vl-slot-${sid}" type="text" autocomplete="off" placeholder="Vendor ${num} name…" style="flex:1;"/><button type="button" onclick="removeVI(${sid})" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.1rem;line-height:1;padding:0 0.4rem;">✕</button>`;
-  document.getElementById('extra-vendors').appendChild(d);
+// Static pre-rendered vendor rows — show/hide only, no dynamic creation
+function showNextVRow(){
+  for(let i=2;i<=4;i++){
+    const row=document.getElementById('vrow'+i);
+    if(row&&row.style.display==='none'){
+      row.style.display='block';
+      document.getElementById('vf'+i).value='';
+      updateVCLabel();
+      if(i===4)document.getElementById('add-vendor-btn').style.display='none';
+      return;
+    }
+  }
+  showToast('Maximum 4 vendors');
+}
+function hideVRow(n){
+  const row=document.getElementById('vrow'+n);
+  if(row){row.style.display='none';document.getElementById('vf'+n).value='';}
+  document.getElementById('add-vendor-btn').style.display='';
   updateVCLabel();
 }
-function removeVI(sid){
-  const row=document.querySelector(`.vi-row[data-slot="${sid}"]`);if(row)row.remove();updateVCLabel();
-}
 function updateVCLabel(){
-  const n=1+document.querySelectorAll('#extra-vendors .vi-row').length;
-  document.getElementById('vc-lbl').textContent=n>1?`${n} vendors`:'';
+  let visible=1;
+  for(let i=2;i<=4;i++){const r=document.getElementById('vrow'+i);if(r&&r.style.display!=='none')visible++;}
+  document.getElementById('vc-lbl').textContent=visible>1?visible+' vendors':'';
 }
 function qs(name){
-  document.getElementById('vendor1').value=name;
-  document.getElementById('extra-vendors').innerHTML='';
+  document.getElementById('vf1').value=name;
+  for(let i=2;i<=4;i++)hideVRow(i);
+  document.getElementById('add-vendor-btn').style.display='';
   updateVCLabel();setMode('single');runAnalysis();
 }
 
@@ -376,12 +402,13 @@ function shareVendor(d){const url=`${location.origin}${location.pathname}?v=${en
 function showLoading(names){const steps=['Generating vendor intelligence…','Scoring against your priorities…','Detecting red flags & maturity…','Building vendor card…'];let si=0;document.getElementById('results-area').innerHTML=`<div class="loading-card"><div class="spinner"></div><div class="loading-text">Analyzing ${names}…</div><div class="loading-step" id="lstep">${steps[0]}</div></div>`;const t=setInterval(()=>{si=(si+1)%steps.length;const el=document.getElementById('lstep');if(el)el.textContent=steps[si];else clearInterval(t);},2000);}
 
 async function runAnalysis(){
-  const v1=document.getElementById('vendor1').value.trim();if(!v1){document.getElementById('vendor1').focus();return;}
+  const v1=document.getElementById('vf1').value.trim();if(!v1){document.getElementById('vf1').focus();return;}
   const vendors=[v1];
-  document.querySelectorAll('#extra-vendors .vi-row').forEach(row=>{
-    const sid=row.dataset.slot;const el=document.getElementById('vs-'+sid);
-    if(el&&el.value.trim())vendors.push(el.value.trim());
-  });
+  for(let i=2;i<=4;i++){
+    const row=document.getElementById('vrow'+i);
+    const el=document.getElementById('vf'+i);
+    if(row&&row.style.display!=='none'&&el&&el.value.trim())vendors.push(el.value.trim());
+  }
   const btn=document.getElementById('analyze-btn');btn.disabled=true;btn.textContent='Analyzing…';
   showLoading(vendors.join(', '));
   try{
